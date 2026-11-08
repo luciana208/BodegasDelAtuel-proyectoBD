@@ -65,3 +65,18 @@ ALTER TABLE stock_deposito ADD CONSTRAINT chk_stock_deposito_cantidad CHECK (can
 ALTER TABLE transportista ADD CONSTRAINT chk_transportista_email CHECK (email LIKE '_%@_%._%');
 ALTER TABLE auditoria_precio ADD CONSTRAINT chk_auditoria_precios
   CHECK (precio_anterior > 0 AND precio_nuevo > 0 AND precio_anterior <> precio_nuevo);
+
+-- valores por defecto
+ALTER TABLE cliente ALTER COLUMN fecha_alta SET DEFAULT CURRENT_DATE;
+ALTER TABLE comprobante ALTER COLUMN fecha SET DEFAULT CURRENT_DATE;
+ALTER TABLE comprobante ALTER COLUMN subtotal SET DEFAULT 0;
+ALTER TABLE comprobante ALTER COLUMN descuento SET DEFAULT 0;
+ALTER TABLE comprobante ALTER COLUMN total SET DEFAULT 0;
+ALTER TABLE stock_sala ALTER COLUMN cantidad SET DEFAULT 0;
+ALTER TABLE stock_deposito ALTER COLUMN cantidad SET DEFAULT 0;
+ALTER TABLE ingreso ALTER COLUMN fecha SET DEFAULT CURRENT_DATE;
+ALTER TABLE ingreso ALTER COLUMN estado SET DEFAULT 'en_confeccion';
+ALTER TABLE transferencia ALTER COLUMN fecha_confeccion SET DEFAULT CURRENT_DATE;
+ALTER TABLE transferencia ALTER COLUMN estado SET DEFAULT 'en_confeccion';
+ALTER TABLE auditoria_precio ALTER COLUMN fecha_hora SET DEFAULT LOCALTIMESTAMP;
+ALTER TABLE auditoria_precio ALTER COLUMN usuario SET DEFAULT CURRENT_USER;
