@@ -286,3 +286,14 @@ CREATE TABLE renglon_transferencia (
    cantidad          INTEGER NOT NULL,
    PRIMARY KEY (nro_transferencia, cod_vino)
 );
+
+-- auditoria de cambios de precio
+CREATE TABLE auditoria_precio (
+   id_auditoria    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   cod_vino        INTEGER       NOT NULL
+                   REFERENCES vino (cod_vino) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   precio_anterior NUMERIC(10,2) NOT NULL,
+   precio_nuevo    NUMERIC(10,2) NOT NULL,
+   fecha_hora      TIMESTAMP     NOT NULL,
+   usuario         VARCHAR(63)   NOT NULL
+);
