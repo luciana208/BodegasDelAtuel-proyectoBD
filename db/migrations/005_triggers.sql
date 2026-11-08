@@ -267,3 +267,56 @@ $$;
 CREATE TRIGGER trg_renglon_transferencia_bloqueo
 BEFORE INSERT OR UPDATE OR DELETE ON renglon_transferencia
 FOR EACH ROW EXECUTE FUNCTION trg_bloqueo_renglon_transferencia();
+
+-- rn-13 registra cada cambio de precio de un vino con fecha, usuario y precios
+CREATE OR REPLACE FUNCTION trg_auditar_precio() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+  INSERT INTO auditoria_precio (cod_vino, precio_anterior, precio_nuevo, fecha_hora, usuario)
+  VALUES (NEW.cod_vino, OLD.precio, NEW.precio, LOCALTIMESTAMP, CURRENT_USER);
+  RETURN NULL;
+END;
+$$;
+
+CREATE TRIGGER trg_vino_auditoria_precio
+AFTER UPDATE OF precio ON vino
+FOR EACH ROW
+WHEN (OLD.precio IS DISTINCT FROM NEW.precio)
+EXECUTE FUNCTION trg_auditar_precio();
+
+/* rn-05 al cerrar la transaccion la composicion de cada vino tocado suma exactamente 100.
+   se dispara desde composicion y tambien al crear un vino, para que no quede sin cepas */
+CREATE OR REPLACE FUNCTION trg_validar_composicion() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+  v_vino  INTEGER;
+  v_suma  NUMERIC;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    v_vino := OLD.cod_vino;
+  ELSE
+    v_vino := NEW.cod_vino;
+  END IF;
+
+  -- si el vino se borro, su composicion se fue en cascada
+  IF NOT EXISTS (SELECT 1 FROM vino WHERE cod_vino = v_vino) THEN
+    RETURN NULL;
+  END IF;
+
+  SELECT COALESCE(SUM(porcentaje), 0) INTO v_suma FROM composicion WHERE cod_vino = v_vino;
+  IF v_suma <> 100 THEN
+    RAISE EXCEPTION 'Los porcentajes de corte del vino % suman % y tienen que sumar 100 (RN-05)', v_vino, v_suma;
+  END IF;
+  RETURN NULL;
+END;
+$$;
+
+CREATE CONSTRAINT TRIGGER trg_composicion_suma
+AFTER INSERT OR UPDATE OR DELETE ON composicion
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION trg_validar_composicion();
+
+CREATE CONSTRAINT TRIGGER trg_vino_composicion
+AFTER INSERT ON vino
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION trg_validar_composicion();
