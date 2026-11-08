@@ -137,3 +137,133 @@ $$;
 CREATE TRIGGER trg_renglon_actualiza
 AFTER INSERT OR UPDATE OR DELETE ON renglon_comprobante
 FOR EACH ROW EXECUTE FUNCTION trg_renglon_actualiza();
+
+/* rn-10 y rn-11 controla los estados de ingresos y transferencias: un documento nuevo
+   arranca en confeccion y solo se avanza en_confeccion -> terminado -> procesado */
+CREATE OR REPLACE FUNCTION trg_control_estado() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+  v_regla      TEXT;
+  v_documento  TEXT;
+  v_renglones  INTEGER;
+BEGIN
+  IF TG_TABLE_NAME = 'ingreso' THEN
+    v_regla := 'RN-10';
+    v_documento := 'El ingreso ' || NEW.cod_ingreso;
+  ELSE
+    v_regla := 'RN-11';
+    v_documento := 'La transferencia ' || NEW.nro_transferencia;
+  END IF;
+
+  IF TG_OP = 'INSERT' THEN
+    IF NEW.estado <> 'en_confeccion' THEN
+      RAISE EXCEPTION '% tiene que crearse en confeccion (%)', v_documento, v_regla;
+    END IF;
+    RETURN NEW;
+  END IF;
+
+  IF NEW.estado = OLD.estado THEN
+    RETURN NEW;
+  END IF;
+
+  IF NOT ((OLD.estado = 'en_confeccion' AND NEW.estado = 'terminado')
+       OR (OLD.estado = 'terminado' AND NEW.estado = 'procesado')) THEN
+    RAISE EXCEPTION '% no puede pasar de % a % (%)', v_documento, OLD.estado, NEW.estado, v_regla;
+  END IF;
+
+  -- no se termina un documento vacio
+  IF NEW.estado = 'terminado' THEN
+    IF TG_TABLE_NAME = 'ingreso' THEN
+      SELECT count(*) INTO v_renglones FROM renglon_ingreso WHERE cod_ingreso = NEW.cod_ingreso;
+    ELSE
+      SELECT count(*) INTO v_renglones FROM renglon_transferencia WHERE nro_transferencia = NEW.nro_transferencia;
+    END IF;
+    IF v_renglones = 0 THEN
+      RAISE EXCEPTION '% no tiene renglones y no se puede terminar (%)', v_documento, v_regla;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_ingreso_estado
+BEFORE INSERT OR UPDATE OF estado ON ingreso
+FOR EACH ROW EXECUTE FUNCTION trg_control_estado();
+
+CREATE TRIGGER trg_transferencia_estado
+BEFORE INSERT OR UPDATE OF estado ON transferencia
+FOR EACH ROW EXECUTE FUNCTION trg_control_estado();
+
+-- rn-11 la fecha de confeccion de una transferencia es la actual y no se modifica
+CREATE OR REPLACE FUNCTION trg_transferencia_fecha() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    NEW.fecha_confeccion := CURRENT_DATE;
+  ELSIF NEW.fecha_confeccion <> OLD.fecha_confeccion THEN
+    RAISE EXCEPTION 'La fecha de confeccion de la transferencia % no se puede modificar (RN-11)', OLD.nro_transferencia;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_transferencia_fecha
+BEFORE INSERT OR UPDATE ON transferencia
+FOR EACH ROW EXECUTE FUNCTION trg_transferencia_fecha();
+
+/* rn-12 un ingreso que no esta en confeccion no admite agregar, modificar ni quitar renglones.
+   si el ingreso ya no existe es porque se esta borrando en cascada y se deja pasar */
+CREATE OR REPLACE FUNCTION trg_bloqueo_renglon_ingreso() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+  v_estado estado_documento;
+BEGIN
+  IF TG_OP IN ('UPDATE', 'DELETE') THEN
+    SELECT estado INTO v_estado FROM ingreso WHERE cod_ingreso = OLD.cod_ingreso;
+    IF v_estado <> 'en_confeccion' THEN
+      RAISE EXCEPTION 'El ingreso % esta en estado % y no admite cambios en sus renglones (RN-12)', OLD.cod_ingreso, v_estado;
+    END IF;
+  END IF;
+
+  IF TG_OP IN ('INSERT', 'UPDATE') THEN
+    SELECT estado INTO v_estado FROM ingreso WHERE cod_ingreso = NEW.cod_ingreso;
+    IF v_estado <> 'en_confeccion' THEN
+      RAISE EXCEPTION 'El ingreso % esta en estado % y no admite cambios en sus renglones (RN-12)', NEW.cod_ingreso, v_estado;
+    END IF;
+    RETURN NEW;
+  END IF;
+  RETURN OLD;
+END;
+$$;
+
+CREATE TRIGGER trg_renglon_ingreso_bloqueo
+BEFORE INSERT OR UPDATE OR DELETE ON renglon_ingreso
+FOR EACH ROW EXECUTE FUNCTION trg_bloqueo_renglon_ingreso();
+
+-- rn-12 lo mismo para los renglones de transferencia
+CREATE OR REPLACE FUNCTION trg_bloqueo_renglon_transferencia() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+  v_estado estado_documento;
+BEGIN
+  IF TG_OP IN ('UPDATE', 'DELETE') THEN
+    SELECT estado INTO v_estado FROM transferencia WHERE nro_transferencia = OLD.nro_transferencia;
+    IF v_estado <> 'en_confeccion' THEN
+      RAISE EXCEPTION 'La transferencia % esta en estado % y no admite cambios en sus renglones (RN-12)', OLD.nro_transferencia, v_estado;
+    END IF;
+  END IF;
+
+  IF TG_OP IN ('INSERT', 'UPDATE') THEN
+    SELECT estado INTO v_estado FROM transferencia WHERE nro_transferencia = NEW.nro_transferencia;
+    IF v_estado <> 'en_confeccion' THEN
+      RAISE EXCEPTION 'La transferencia % esta en estado % y no admite cambios en sus renglones (RN-12)', NEW.nro_transferencia, v_estado;
+    END IF;
+    RETURN NEW;
+  END IF;
+  RETURN OLD;
+END;
+$$;
+
+CREATE TRIGGER trg_renglon_transferencia_bloqueo
+BEFORE INSERT OR UPDATE OR DELETE ON renglon_transferencia
+FOR EACH ROW EXECUTE FUNCTION trg_bloqueo_renglon_transferencia();
