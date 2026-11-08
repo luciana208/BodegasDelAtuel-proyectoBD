@@ -1,0 +1,77 @@
+Pager usage is off.
+          tabla          | filas  
+-------------------------+--------
+ renglon_comprobante     | 506878
+ comprobante             | 150000
+ cliente                 |  20000
+ socio                   |  15028
+ renglon_transferencia   |  10423
+ analisis_calidad        |   6903
+ renglon_ingreso         |   4169
+ permiso_exportacion     |   4008
+ distribuidor            |   3425
+ transferencia           |   3028
+ lote_uva                |   2741
+ stock_sala              |   2341
+ ingreso                 |   1650
+ exportador              |   1547
+ vino_maridaje           |    837
+ composicion             |    665
+ parcela                 |    605
+ vino                    |    409
+ stock_deposito          |    409
+ empleado                |    159
+ auditoria_precio        |     80
+ transportista_localidad |     54
+ finca                   |     40
+ localidad               |     35
+ sala_venta              |     30
+ cepa                    |     19
+ departamento            |     18
+ transportista           |     15
+ bodega                  |     12
+ maridaje                |     12
+(30 rows)
+
+                            control                             | inconsistencias 
+----------------------------------------------------------------+-----------------
+ comprobantes sin renglones                                     |               0
+ ingresos sin renglones                                         |               0
+ transferencias sin renglones                                   |               0
+ clientes sin su fila de subtipo                                |               0
+ renglones huerfanos de comprobante                             |               0
+ stock de sala negativo                                         |               0
+ stock de deposito negativo                                     |               0
+ comprobantes cuyo total no es la suma de sus renglones         |               0
+ renglones con subtotal mal calculado                           |               0
+ renglones con un descuento distinto al del cliente             |               0
+ clientes con descuento distinto al de su tipo                  |               0
+ renglones con un precio que el vino nunca tuvo                 |               0
+ vinos cuyo corte no suma 100                                   |               0
+ stock de sala distinto a lo transferido menos lo vendido       |               0
+ stock de deposito distinto a lo ingresado menos lo transferido |               0
+ ventas anteriores al alta del cliente                          |               0
+ ventas de un vino antes de que llegue a la sala                |               0
+ transferencias de un vino antes de su primer ingreso           |               0
+ ingresos de un vino antes del anio siguiente a su aniada       |               0
+ ingresos de un vino de otra bodega                             |               0
+ analisis anteriores a la cosecha                               |               0
+ documentos con fecha futura                                    |               0
+ triggers propios deshabilitados                                |               0
+(23 rows)
+
+                         dato                         | cantidad 
+------------------------------------------------------+----------
+ comprobantes de la ultima semana                     |      489
+ comprobantes del ultimo trimestre                    |     6343
+ comprobantes de socios con mas de 5 anios            |    18855
+ transferencias de los ultimos 15 dias                |       49
+ transferencias pendientes                            |       26
+ ingresos del ultimo mes                              |       26
+ ingresos procesados de hace mas de 365 dias          |     1352
+ socios sin compras dados de alta hace mas de 5 anios |      151
+ empleados con mas de 5 anios                         |      110
+ exportadores con mas de 3 permisos                   |      398
+ pares sala-vino con stock 0                          |      374
+(11 rows)
+
