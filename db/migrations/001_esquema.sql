@@ -103,3 +103,40 @@ CREATE TABLE analisis_calidad (
    ph           NUMERIC(3,2) NOT NULL,
    acidez_total NUMERIC(4,2) NOT NULL
 );
+
+-- vinos, composicion y maridajes
+CREATE TABLE vino (
+   cod_vino    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   nombre      VARCHAR(80)   NOT NULL,
+   tipo        tipo_vino     NOT NULL,
+   anada       SMALLINT      NOT NULL,
+   volumen_ml  INTEGER       NOT NULL,
+   graduacion  NUMERIC(4,2)  NOT NULL,
+   precio      NUMERIC(10,2) NOT NULL,
+   cuit_bodega cuit_dom      NOT NULL
+               REFERENCES bodega (cuit) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- n:m entre vino y cepa con el porcentaje de corte
+CREATE TABLE composicion (
+   cod_vino   INTEGER      NOT NULL
+              REFERENCES vino (cod_vino) ON DELETE CASCADE ON UPDATE RESTRICT,
+   id_cepa    SMALLINT     NOT NULL
+              REFERENCES cepa (id_cepa) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   porcentaje NUMERIC(5,2) NOT NULL,
+   PRIMARY KEY (cod_vino, id_cepa)
+);
+
+CREATE TABLE maridaje (
+   id_maridaje          SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   nombre               VARCHAR(60)  NOT NULL,
+   temperatura_servicio NUMERIC(4,1) NOT NULL
+);
+
+CREATE TABLE vino_maridaje (
+   cod_vino    INTEGER  NOT NULL
+               REFERENCES vino (cod_vino) ON DELETE CASCADE ON UPDATE RESTRICT,
+   id_maridaje SMALLINT NOT NULL
+               REFERENCES maridaje (id_maridaje) ON DELETE CASCADE ON UPDATE RESTRICT,
+   PRIMARY KEY (cod_vino, id_maridaje)
+);
