@@ -232,3 +232,57 @@ CREATE TABLE stock_deposito (
             REFERENCES vino (cod_vino) ON DELETE RESTRICT ON UPDATE RESTRICT,
    cantidad INTEGER NOT NULL
 );
+
+-- transportistas, ingresos al deposito y transferencias a salas
+CREATE TABLE transportista (
+   cod_transporte INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   razon_social   VARCHAR(100) NOT NULL,
+   cuit           cuit_dom     NOT NULL,
+   email          VARCHAR(100) NOT NULL,
+   telefono       VARCHAR(20)  NOT NULL,
+   domicilio      VARCHAR(120) NOT NULL
+);
+
+CREATE TABLE transportista_localidad (
+   cod_transporte INTEGER NOT NULL
+                  REFERENCES transportista (cod_transporte) ON DELETE CASCADE ON UPDATE RESTRICT,
+   id_localidad   INTEGER NOT NULL
+                  REFERENCES localidad (id_localidad) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   PRIMARY KEY (cod_transporte, id_localidad)
+);
+
+CREATE TABLE ingreso (
+   cod_ingreso    INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   fecha          DATE             NOT NULL,
+   estado         estado_documento NOT NULL,
+   cod_transporte INTEGER          NOT NULL
+                  REFERENCES transportista (cod_transporte) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   cuit_bodega    cuit_dom         NOT NULL
+                  REFERENCES bodega (cuit) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE TABLE renglon_ingreso (
+   cod_ingreso INTEGER NOT NULL
+               REFERENCES ingreso (cod_ingreso) ON DELETE CASCADE ON UPDATE RESTRICT,
+   cod_vino    INTEGER NOT NULL
+               REFERENCES vino (cod_vino) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   cantidad    INTEGER NOT NULL,
+   PRIMARY KEY (cod_ingreso, cod_vino)
+);
+
+CREATE TABLE transferencia (
+   nro_transferencia INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   id_sala           INTEGER          NOT NULL
+                     REFERENCES sala_venta (id_sala) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   fecha_confeccion  DATE             NOT NULL,
+   estado            estado_documento NOT NULL
+);
+
+CREATE TABLE renglon_transferencia (
+   nro_transferencia INTEGER NOT NULL
+                     REFERENCES transferencia (nro_transferencia) ON DELETE CASCADE ON UPDATE RESTRICT,
+   cod_vino          INTEGER NOT NULL
+                     REFERENCES vino (cod_vino) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   cantidad          INTEGER NOT NULL,
+   PRIMARY KEY (nro_transferencia, cod_vino)
+);
