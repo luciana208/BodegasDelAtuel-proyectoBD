@@ -140,3 +140,54 @@ CREATE TABLE vino_maridaje (
                REFERENCES maridaje (id_maridaje) ON DELETE CASCADE ON UPDATE RESTRICT,
    PRIMARY KEY (cod_vino, id_maridaje)
 );
+
+/* jerarquia de clientes: supertipo cliente y una tabla por subtipo.
+   cada subtipo repite la columna tipo con un valor fijo y la usa en la
+   clave foranea compuesta, asi un cliente solo puede estar en el subtipo
+   que dice su columna tipo */
+CREATE TABLE cliente (
+   id_cliente     INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   nombre         VARCHAR(120) NOT NULL,
+   tipo_documento VARCHAR(4)   NOT NULL,
+   nro_documento  VARCHAR(13)  NOT NULL,
+   direccion      VARCHAR(120) NOT NULL,
+   id_localidad   INTEGER      NOT NULL
+                  REFERENCES localidad (id_localidad) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   fecha_alta     DATE         NOT NULL,
+   tipo           tipo_cliente NOT NULL,
+   descuento      NUMERIC(5,2) NOT NULL,
+   UNIQUE (id_cliente, tipo)
+);
+
+CREATE TABLE socio (
+   id_cliente INTEGER      PRIMARY KEY,
+   tipo       tipo_cliente NOT NULL DEFAULT 'socio' CHECK (tipo = 'socio'),
+   nro_carnet INTEGER      NOT NULL,
+   FOREIGN KEY (id_cliente, tipo)
+              REFERENCES cliente (id_cliente, tipo) ON DELETE CASCADE ON UPDATE RESTRICT
+);
+
+CREATE TABLE distribuidor (
+   id_cliente       INTEGER      PRIMARY KEY,
+   tipo             tipo_cliente NOT NULL DEFAULT 'distribuidor' CHECK (tipo = 'distribuidor'),
+   zona_cobertura   VARCHAR(80)  NOT NULL,
+   nro_habilitacion VARCHAR(20)  NOT NULL,
+   FOREIGN KEY (id_cliente, tipo)
+                    REFERENCES cliente (id_cliente, tipo) ON DELETE CASCADE ON UPDATE RESTRICT
+);
+
+CREATE TABLE exportador (
+   id_cliente   INTEGER      PRIMARY KEY,
+   tipo         tipo_cliente NOT NULL DEFAULT 'exportador' CHECK (tipo = 'exportador'),
+   pais_destino VARCHAR(60)  NOT NULL,
+   FOREIGN KEY (id_cliente, tipo)
+                REFERENCES cliente (id_cliente, tipo) ON DELETE CASCADE ON UPDATE RESTRICT
+);
+
+CREATE TABLE permiso_exportacion (
+   cod_permiso       VARCHAR(20) PRIMARY KEY,
+   id_cliente        INTEGER     NOT NULL
+                     REFERENCES exportador (id_cliente) ON DELETE CASCADE ON UPDATE RESTRICT,
+   fecha_emision     DATE        NOT NULL,
+   fecha_vencimiento DATE        NOT NULL
+);
