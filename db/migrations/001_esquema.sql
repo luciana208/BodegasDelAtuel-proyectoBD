@@ -191,3 +191,44 @@ CREATE TABLE permiso_exportacion (
    fecha_emision     DATE        NOT NULL,
    fecha_vencimiento DATE        NOT NULL
 );
+
+-- ventas
+CREATE TABLE comprobante (
+   nro_comprobante INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   fecha           DATE          NOT NULL,
+   id_cliente      INTEGER       NOT NULL
+                   REFERENCES cliente (id_cliente) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   id_sala         INTEGER       NOT NULL
+                   REFERENCES sala_venta (id_sala) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   subtotal        NUMERIC(12,2) NOT NULL,
+   descuento       NUMERIC(12,2) NOT NULL,
+   total           NUMERIC(12,2) NOT NULL
+);
+
+CREATE TABLE renglon_comprobante (
+   nro_comprobante INTEGER       NOT NULL
+                   REFERENCES comprobante (nro_comprobante) ON DELETE CASCADE ON UPDATE RESTRICT,
+   cod_vino        INTEGER       NOT NULL
+                   REFERENCES vino (cod_vino) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   cantidad        INTEGER       NOT NULL,
+   precio_unitario NUMERIC(10,2) NOT NULL,
+   porc_descuento  NUMERIC(5,2)  NOT NULL,
+   subtotal        NUMERIC(12,2) NOT NULL,
+   PRIMARY KEY (nro_comprobante, cod_vino)
+);
+
+-- stock de cada sala y del deposito central
+CREATE TABLE stock_sala (
+   id_sala  INTEGER NOT NULL
+            REFERENCES sala_venta (id_sala) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   cod_vino INTEGER NOT NULL
+            REFERENCES vino (cod_vino) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   cantidad INTEGER NOT NULL,
+   PRIMARY KEY (id_sala, cod_vino)
+);
+
+CREATE TABLE stock_deposito (
+   cod_vino INTEGER PRIMARY KEY
+            REFERENCES vino (cod_vino) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   cantidad INTEGER NOT NULL
+);
