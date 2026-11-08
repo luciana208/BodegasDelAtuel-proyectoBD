@@ -20,5 +20,24 @@ services:
       timeout: 5s
       retries: 20
 
+  # carga masiva, se corre aparte con: docker compose run --rm seed
+  seed:
+    build: ./db/seed
+    profiles: ["seed"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      SEMILLA: ${SEMILLA:-2026}
+      FECHA_BASE: ${FECHA_BASE:-}
+      RESULTADOS: /resultados
+      TZ: America/Argentina/Mendoza
+    volumes:
+      - ./docs/resultados:/resultados
+
 volumes:
   datos_db:

@@ -1,0 +1,5 @@
+tipo,graduacion_min,graduacion_max,peso,cepas,maridajes
+tinto,13.0,15.5,62,Malbec|Cabernet Sauvignon|Merlot|Syrah|Bonarda|Tempranillo|Pinot Noir|Cabernet Franc|Petit Verdot,Carnes rojas|Quesos duros|Pastas con salsa roja|Asado|Empanadas|Chocolate amargo
+blanco,12.0,14.0,22,Chardonnay|Sauvignon Blanc|Torrontés|Chenin Blanc|Semillón|Viognier,Pescados y mariscos|Carnes blancas|Quesos blandos|Sushi|Entradas y fiambres
+rosado,11.5,13.0,8,Malbec|Pinot Noir|Syrah,Entradas y fiambres|Carnes blancas|Pastas con salsa roja|Sushi
+espumante,11.0,12.5,8,Chardonnay|Pinot Noir|Chenin Blanc|Semillón,Postres|Entradas y fiambres|Sushi|Pescados y mariscos

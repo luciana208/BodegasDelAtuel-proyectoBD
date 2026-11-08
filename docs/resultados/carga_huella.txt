@@ -1,0 +1,35 @@
+Pager usage is off.
+          tabla          | filas  |              huella              
+-------------------------+--------+----------------------------------
+ analisis_calidad        |   6903 | bca3c39585207b02740154c4b7aafef3
+ auditoria_precio        |     80 | 1b3b6d22619b6fa9f3acc32ac3331709
+ bodega                  |     12 | c607b10ec2eedd8b325a3a5a1f3fa17b
+ cepa                    |     19 | eb16efb2f382e063d89e22a8c46aafe2
+ cliente                 |  20000 | 9c52878ef4cc232ca2634757608bd967
+ composicion             |    665 | fb11c1271226f8d005c2dd46f362a24b
+ comprobante             | 150000 | ac04761461fd79b57b1a962564650382
+ departamento            |     18 | ebed267583511b7375f8ba480456af4f
+ distribuidor            |   3425 | 5ec5e3f4b5ec2ebb32b60d87e3e95250
+ empleado                |    159 | 1e40bed55109e05e3ede60b8b32b2400
+ exportador              |   1547 | 63240e8ffd0ae175c7a2cfedea3c01f6
+ finca                   |     40 | 7283d4de5881b918e071ec06a6ad4148
+ ingreso                 |   1650 | 33ec7ff87b207bf6656feb715f257816
+ localidad               |     35 | b33e047fae76c0d829c7224dd1a31f6c
+ lote_uva                |   2741 | 5d695e83b9feeba8168017b9b368d2c3
+ maridaje                |     12 | 19e1bc081ed53eec4e599b3c0cf15af0
+ parcela                 |    605 | 8fd9939fb22ff0b58e7df9f6327e8804
+ permiso_exportacion     |   4008 | 2aa84abf7ebe2c098dd0e3b19f6392a4
+ renglon_comprobante     | 506878 | 5bb378b5d8699b414d641b8b2cea369d
+ renglon_ingreso         |   4169 | eb0c33c6abd3443fcea9e17a4004df1d
+ renglon_transferencia   |  10423 | 2658fc78304c94fdf5ecf51bae7dd878
+ sala_venta              |     30 | 953246d34b609460b294a57b9637c41b
+ socio                   |  15028 | aafd3499665da403c6e4e60e9189546e
+ stock_deposito          |    409 | 94832eba96ea12b2b1588f5ed918f929
+ stock_sala              |   2341 | c1d9c55b09349d6c184cd682e89070cb
+ transferencia           |   3028 | 63c39d315d75b83c25ea0676b3a5abde
+ transportista           |     15 | fdf7939359f35dc58904e2f2fa75b47a
+ transportista_localidad |     54 | 07beb6fcc7154ae93c622a853a6460b2
+ vino                    |    409 | 26553aa70ab9e97e3370f487da576a62
+ vino_maridaje           |    837 | 61d1669e42c5fc59966964368c95127e
+(30 rows)
+
