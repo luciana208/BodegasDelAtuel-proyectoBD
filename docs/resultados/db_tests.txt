@@ -1,0 +1,231 @@
+Pager usage is off.
+SET
+BEGIN
+CREATE TABLE
+CREATE PROCEDURE
+CREATE PROCEDURE
+CREATE PROCEDURE
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+CALL
+Output format is aligned.
+ nro | regla |                                    caso                                     |  esperado   |                                                                 obtenido                                                                  | resultado 
+-----+-------+-----------------------------------------------------------------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------+-----------
+   1 | RN-01 | precio negativo                                                             | error 23514 | 23514 new row for relation "vino" violates check constraint "chk_vino_precio"                                                             | ok
+   2 | RN-01 | precio cero                                                                 | error 23514 | 23514 new row for relation "vino" violates check constraint "chk_vino_precio"                                                             | ok
+   3 | RN-01 | el precio es una sola columna del vino, igual para todas las salas          | verdadero   | true                                                                                                                                      | ok
+   4 | RN-02 | sala con localidad inexistente                                              | error 23503 | 23503 insert or update on table "sala_venta" violates foreign key constraint "sala_venta_id_localidad_fkey"                               | ok
+   5 | RN-02 | localidad sin encargado                                                     | error 23502 | 23502 null value in column "encargado_regional" of relation "localidad" violates not-null constraint                                      | ok
+   6 | RN-02 | las dos salas de la localidad tienen el mismo encargado                     | verdadero   | true                                                                                                                                      | ok
+   7 | RN-03 | empleado con sala                                                           | sin error   | sin error                                                                                                                                 | ok
+   8 | RN-03 | empleado sin sala                                                           | error 23502 | 23502 null value in column "id_sala" of relation "empleado" violates not-null constraint                                                  | ok
+   9 | RN-03 | empleado con sala inexistente                                               | error 23503 | 23503 insert or update on table "empleado" violates foreign key constraint "empleado_id_sala_fkey"                                        | ok
+  10 | RN-04 | primera cosecha de la campania                                              | sin error   | sin error                                                                                                                                 | ok
+  11 | RN-04 | segunda cosecha en la misma campania                                        | error 23505 | 23505 duplicate key value violates unique constraint "uq_lote_parcela_campania"                                                           | ok
+  12 | RN-04 | fecha de cosecha fuera de la campania                                       | error 23514 | 23514 new row for relation "lote_uva" violates check constraint "chk_lote_fecha_campania"                                                 | ok
+  13 | RN-04 | parcela con cepa inexistente                                                | error 23503 | 23503 insert or update on table "parcela" violates foreign key constraint "parcela_id_cepa_fkey"                                          | ok
+  14 | RN-05 | corte que suma 90                                                           | error P0001 | P0001 Los porcentajes de corte del vino 19 suman 90.00 y tienen que sumar 100 (RN-05)                                                     | ok
+  15 | RN-05 | vino sin composicion                                                        | error P0001 | P0001 Los porcentajes de corte del vino 20 suman 0 y tienen que sumar 100 (RN-05)                                                         | ok
+  16 | RN-05 | corte 60 y 40 cargado en dos pasos                                          | sin error   | sin error                                                                                                                                 | ok
+  17 | RN-05 | modificar un porcentaje y romper la suma                                    | error P0001 | P0001 Los porcentajes de corte del vino 16 suman 80.00 y tienen que sumar 100 (RN-05)                                                     | ok
+  18 | RN-06 | socio recibe 10 aunque se cargo 45                                          | verdadero   | true                                                                                                                                      | ok
+  19 | RN-06 | distribuidor recibe 20                                                      | verdadero   | true                                                                                                                                      | ok
+  20 | RN-06 | exportador recibe 30                                                        | verdadero   | true                                                                                                                                      | ok
+  21 | RN-06 | descuento fuera de rango                                                    | error 23514 | 23514 new row for relation "cliente" violates check constraint "chk_cliente_descuento"                                                    | ok
+  22 | RN-06 | socio cargado como distribuidor                                             | error 23503 | 23503 insert or update on table "distribuidor" violates foreign key constraint "distribuidor_id_cliente_tipo_fkey"                        | ok
+  23 | RN-07 | primer permiso                                                              | sin error   | sin error                                                                                                                                 | ok
+  24 | RN-07 | segundo permiso del mismo exportador                                        | sin error   | sin error                                                                                                                                 | ok
+  25 | RN-07 | vencimiento anterior a la emision                                           | error 23514 | 23514 new row for relation "permiso_exportacion" violates check constraint "chk_permiso_fechas"                                           | ok
+  26 | RN-07 | permiso para un cliente que no es exportador                                | error 23503 | 23503 insert or update on table "permiso_exportacion" violates foreign key constraint "permiso_exportacion_id_cliente_fkey"               | ok
+  27 | RN-08 | el comprobante nuevo arranca en cero aunque se cargue un total              | verdadero   | true                                                                                                                                      | ok
+  28 | RN-08 | venta de 2 botellas a un distribuidor                                       | sin error   | sin error                                                                                                                                 | ok
+  29 | RN-08 | el renglon toma el precio del vino, el 20 por ciento y calcula el subtotal  | verdadero   | true                                                                                                                                      | ok
+  30 | RN-08 | el comprobante queda con subtotal 20000, descuento 4000 y total 16000       | verdadero   | true                                                                                                                                      | ok
+  31 | RN-08 | intento de cargar el total a mano                                           | sin error   | sin error                                                                                                                                 | ok
+  32 | RN-08 | el total se recalcula desde los renglones                                   | verdadero   | true                                                                                                                                      | ok
+  33 | RN-09 | la venta desconto 2 botellas del stock de la sala                           | verdadero   | true                                                                                                                                      | ok
+  34 | RN-09 | venta de 50 botellas con stock 8                                            | error P0001 | P0001 Stock insuficiente del vino 16 en la sala 8: hay 8 y se piden 50 (RN-09)                                                            | ok
+  35 | RN-09 | la venta rechazada no cambio el stock ni el comprobante                     | verdadero   | true                                                                                                                                      | ok
+  36 | RN-09 | venta de un vino sin stock en la sala                                       | error P0001 | P0001 Stock insuficiente del vino 17 en la sala 8: hay 0 y se piden 1 (RN-09)                                                             | ok
+  37 | RN-09 | stock negativo cargado a mano                                               | error 23514 | 23514 new row for relation "stock_sala" violates check constraint "chk_stock_sala_cantidad"                                               | ok
+  38 | RN-09 | cambiar la cantidad de un renglon vendido                                   | error P0001 | P0001 No se puede cambiar el vino ni la cantidad de un renglon ya vendido (RN-09)                                                         | ok
+  39 | RN-09 | venta de la ultima botella                                                  | sin error   | sin error                                                                                                                                 | ok
+  40 | RN-09 | el stock queda en cero                                                      | verdadero   | true                                                                                                                                      | ok
+  41 | RN-10 | crear un ingreso ya procesado                                               | error P0001 | P0001 El ingreso 11 tiene que crearse en confeccion (RN-10)                                                                               | ok
+  42 | RN-10 | terminar un ingreso vacio                                                   | error P0001 | P0001 El ingreso 9 no tiene renglones y no se puede terminar (RN-10)                                                                      | ok
+  43 | RN-10 | cargar renglon en confeccion                                                | sin error   | sin error                                                                                                                                 | ok
+  44 | RN-10 | saltar de en_confeccion a procesado                                         | error P0001 | P0001 El ingreso 9 no puede pasar de en_confeccion a procesado (RN-10)                                                                    | ok
+  45 | RN-10 | procesar un ingreso en confeccion                                           | error P0001 | P0001 El ingreso 9 esta en estado en_confeccion y solo se puede procesar si esta terminado (RN-10)                                        | ok
+  46 | RN-10 | terminar el ingreso                                                         | sin error   | sin error                                                                                                                                 | ok
+  47 | RN-10 | procesar el ingreso terminado                                               | sin error   | sin error                                                                                                                                 | ok
+  48 | RN-10 | el deposito sumo 50 botellas y el ingreso quedo procesado                   | verdadero   | true                                                                                                                                      | ok
+  49 | RN-10 | volver de procesado a en_confeccion                                         | error P0001 | P0001 El ingreso 9 no puede pasar de procesado a en_confeccion (RN-10)                                                                    | ok
+  50 | RN-10 | procesar dos veces el mismo ingreso                                         | error P0001 | P0001 El ingreso 9 esta en estado procesado y solo se puede procesar si esta terminado (RN-10)                                            | ok
+  51 | RN-10 | ingreso de un vino que no tenia fila en el deposito                         | sin error   | sin error                                                                                                                                 | ok
+  52 | RN-10 | se creo la fila del deposito con 30 botellas                                | verdadero   | true                                                                                                                                      | ok
+  53 | RN-11 | la fecha de confeccion es la actual aunque se pase otra                     | verdadero   | true                                                                                                                                      | ok
+  54 | RN-11 | modificar la fecha de confeccion                                            | error P0001 | P0001 La fecha de confeccion de la transferencia 9 no se puede modificar (RN-11)                                                          | ok
+  55 | RN-11 | transferencia de 500 botellas terminada                                     | sin error   | sin error                                                                                                                                 | ok
+  56 | RN-11 | procesar sin stock suficiente en el deposito                                | error P0001 | P0001 Stock insuficiente en el deposito central para el vino 16: hay 150 y se piden 500 (RN-11)                                           | ok
+  57 | RN-11 | la transferencia rechazada no dejo cambios a medias                         | verdadero   | true                                                                                                                                      | ok
+  58 | RN-11 | transferencia con un vino que no tiene fila en el deposito                  | sin error   | sin error                                                                                                                                 | ok
+  59 | RN-11 | procesar con un vino sin fila en el deposito                                | error P0001 | P0001 El vino 18 de la transferencia 10 no tiene stock en el deposito central (RN-11)                                                     | ok
+  60 | RN-11 | no se desconto el otro renglon de la misma transferencia                    | verdadero   | true                                                                                                                                      | ok
+  61 | RN-11 | procesar una transferencia de 40 botellas                                   | sin error   | sin error                                                                                                                                 | ok
+  62 | RN-11 | el deposito bajo a 110, la sala tiene 40 y la transferencia quedo procesada | verdadero   | true                                                                                                                                      | ok
+  63 | RN-11 | volver de procesado a terminado                                             | error P0001 | P0001 La transferencia 11 no puede pasar de procesado a terminado (RN-11)                                                                 | ok
+  64 | RN-11 | procesar una transferencia en confeccion                                    | error P0001 | P0001 La transferencia 12 esta en estado en_confeccion y solo se puede procesar si esta terminada (RN-11)                                 | ok
+  65 | RN-12 | agregar renglon a un ingreso procesado                                      | error P0001 | P0001 El ingreso 9 esta en estado procesado y no admite cambios en sus renglones (RN-12)                                                  | ok
+  66 | RN-12 | modificar renglon de una transferencia procesada                            | error P0001 | P0001 La transferencia 11 esta en estado procesado y no admite cambios en sus renglones (RN-12)                                           | ok
+  67 | RN-12 | quitar renglon de una transferencia terminada                               | error P0001 | P0001 La transferencia 9 esta en estado terminado y no admite cambios en sus renglones (RN-12)                                            | ok
+  68 | RN-12 | agregar, modificar y quitar renglones en confeccion                         | sin error   | sin error                                                                                                                                 | ok
+  69 | RN-13 | cambio de precio                                                            | sin error   | sin error                                                                                                                                 | ok
+  70 | RN-13 | quedo registrado el precio anterior, el nuevo, la fecha y el usuario        | verdadero   | true                                                                                                                                      | ok
+  71 | RN-13 | cambio de otro dato del vino                                                | sin error   | sin error                                                                                                                                 | ok
+  72 | RN-13 | si no cambia el precio no se audita                                         | verdadero   | true                                                                                                                                      | ok
+  73 | RN-13 | la api intenta borrar la auditoria                                          | error 42501 | 42501 permission denied for table auditoria_precio                                                                                        | ok
+  74 | RN-14 | borrar un vino con ventas                                                   | error 23503 | 23503 update or delete on table "vino" violates foreign key constraint "renglon_comprobante_cod_vino_fkey" on table "renglon_comprobante" | ok
+  75 | RN-14 | borrar una bodega con vinos e ingresos                                      | error 23503 | 23503 update or delete on table "bodega" violates foreign key constraint "lote_uva_cuit_bodega_fkey" on table "lote_uva"                  | ok
+  76 | RN-14 | borrar un transportista con ingresos                                        | error 23503 | 23503 update or delete on table "transportista" violates foreign key constraint "ingreso_cod_transporte_fkey" on table "ingreso"          | ok
+  77 | RN-14 | borrar un vino sin movimientos                                              | sin error   | sin error                                                                                                                                 | ok
+  78 | RN-15 | renglon de transferencia con cantidad cero                                  | error 23514 | 23514 new row for relation "renglon_transferencia" violates check constraint "chk_renglon_transferencia_cantidad"                         | ok
+  79 | RN-15 | parcela con superficie negativa                                             | error 23514 | 23514 new row for relation "parcela" violates check constraint "chk_parcela_superficie"                                                   | ok
+  80 | RN-15 | finca con superficie cero                                                   | error 23514 | 23514 new row for relation "finca" violates check constraint "chk_finca_superficie"                                                       | ok
+  81 | RN-15 | lote con kilos negativos                                                    | error 23514 | 23514 new row for relation "lote_uva" violates check constraint "chk_lote_kilos"                                                          | ok
+  82 | RN-15 | graduacion de 25                                                            | error 23514 | 23514 new row for relation "vino" violates check constraint "chk_vino_graduacion"                                                         | ok
+  83 | RN-15 | graduacion de 4                                                             | error 23514 | 23514 new row for relation "vino" violates check constraint "chk_vino_graduacion"                                                         | ok
+  84 | RN-15 | renglon de ingreso con cantidad negativa                                    | error 23514 | 23514 new row for relation "renglon_ingreso" violates check constraint "chk_renglon_ingreso_cantidad"                                     | ok
+  85 | ROLES | la api lee datos y usa funciones con su rol                                 | sin error   | sin error                                                                                                                                 | ok
+  86 | ROLES | la api no puede vaciar tablas                                               | error 42501 | 42501 permission denied for table vino                                                                                                    | ok
+  87 | ROLES | la api no puede crear tablas                                                | error 42501 | 42501 permission denied for schema public                                                                                                 | ok
+  88 | ROLES | la api no puede modificar la auditoria                                      | error 42501 | 42501 permission denied for table auditoria_precio                                                                                        | ok
+  89 | ROLES | el rol de lectura no puede insertar                                         | error 42501 | 42501 permission denied for table cepa                                                                                                    | ok
+  90 | ROLES | el rol de lectura no puede procesar transferencias                          | error 42501 | 42501 permission denied for procedure sp_procesar_transferencia                                                                           | ok
+(90 rows)
+
+ casos | ok | fallas | reglas_cubiertas 
+-------+----+--------+------------------
+    90 | 90 |      0 |               15
+(1 row)
+
+ROLLBACK

@@ -1,0 +1,54 @@
+Pager usage is off.
+            elemento            | count 
+--------------------------------+-------
+ primary key                    |    30
+ tablas                         |    30
+ foreign key                    |    36
+ unique                         |    12
+ check (tablas)                 |    35
+ check entre columnas           |     5
+ default                        |    16
+ enum                           |     5
+ domain                         |     2
+ funciones (sin las de trigger) |     8
+ procedimientos                 |     2
+ triggers                       |    13
+ vistas                         |     4
+ roles bodega_*                 |     3
+(14 rows)
+
+         tabla         |              trigger              |           momento           |              funcion              
+-----------------------+-----------------------------------+-----------------------------+-----------------------------------
+ cliente               | trg_cliente_descuento             | before                      | trg_cliente_descuento
+ composicion           | trg_composicion_suma              | constraint trigger diferido | trg_validar_composicion
+ comprobante           | trg_comprobante_importes          | before                      | trg_comprobante_importes
+ ingreso               | trg_ingreso_estado                | before                      | trg_control_estado
+ renglon_comprobante   | trg_renglon_actualiza             | after                       | trg_renglon_actualiza
+ renglon_comprobante   | trg_renglon_importes              | before                      | trg_renglon_importes
+ renglon_comprobante   | trg_renglon_valida_stock          | before                      | trg_validar_stock_venta
+ renglon_ingreso       | trg_renglon_ingreso_bloqueo       | before                      | trg_bloqueo_renglon_ingreso
+ renglon_transferencia | trg_renglon_transferencia_bloqueo | before                      | trg_bloqueo_renglon_transferencia
+ transferencia         | trg_transferencia_estado          | before                      | trg_control_estado
+ transferencia         | trg_transferencia_fecha           | before                      | trg_transferencia_fecha
+ vino                  | trg_vino_auditoria_precio         | after                       | trg_auditar_precio
+ vino                  | trg_vino_composicion              | constraint trigger diferido | trg_validar_composicion
+(13 rows)
+
+         funcion         | volatilidad |                           parametros                           
+-------------------------+-------------+----------------------------------------------------------------
+ fn_antiguedad_anios     | stable      | p_fecha date
+ fn_descuento_cliente    | stable      | p_id_cliente integer
+ fn_descuento_tipo       | immutable   | p_tipo tipo_cliente
+ fn_stock_sala           | stable      | p_sala integer, p_vino integer
+ fn_stock_total          | stable      | p_vino integer
+ fn_subtotal_comprobante | stable      | p_nro integer
+ fn_subtotal_renglon     | immutable   | p_cantidad integer, p_precio numeric, p_porc_descuento numeric
+ fn_total_comprobante    | stable      | p_nro integer
+(8 rows)
+
+    rolname     | select_vino | insert_vino | delete_auditoria | truncate_vino | create_en_public | superusuario 
+----------------+-------------+-------------+------------------+---------------+------------------+--------------
+ bodega_app     | t           | t           | f                | f             | f                | f
+ bodega_lectura | t           | f           | f                | f             | f                | f
+(2 rows)
+

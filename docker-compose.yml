@@ -5,6 +5,10 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
+      LECTURA_DB_PASSWORD: ${LECTURA_DB_PASSWORD}
+      TZ: America/Argentina/Mendoza
+      PGTZ: America/Argentina/Mendoza
     ports:
       - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:

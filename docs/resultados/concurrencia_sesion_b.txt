@@ -1,0 +1,71 @@
+Pager usage is off.
+ transaction_isolation 
+-----------------------
+ read committed
+(1 row)
+
+
+parte 1: con SELECT ... FOR UPDATE
+ pg_sleep 
+----------
+ 
+(1 row)
+
+BEGIN
+ hora_pedido 
+-------------
+ 00:57:22
+(1 row)
+
+ hora_respuesta | cantidad 
+----------------+----------
+ 00:57:25       |        0
+(1 row)
+
+ROLLBACK
+b no vende porque el stock es 0
+
+parte 2: sin FOR UPDATE
+ pg_sleep 
+----------
+ 
+(1 row)
+
+BEGIN
+   hora   | cantidad 
+----------+----------
+ 00:57:28 |        1
+(1 row)
+
+ pg_sleep 
+----------
+ 
+(1 row)
+
+UPDATE 1
+ hora_commit 
+-------------
+ 00:57:31
+(1 row)
+
+COMMIT
+b tambien vendio la botella: se vendio dos veces la misma
+
+parte 3: venta real con el trigger de la base
+ pg_sleep 
+----------
+ 
+(1 row)
+
+BEGIN
+INSERT 0 1
+ hora_pedido 
+-------------
+ 00:57:35
+(1 row)
+
+psql:<stdin>:50: ERROR:  Stock insuficiente del vino 15 en la sala 7: hay 0 y se piden 1 (RN-09)
+CONTEXT:  PL/pgSQL function trg_validar_stock_venta() line 22 at RAISE
+psql:<stdin>:51: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK
+b no pudo vender
