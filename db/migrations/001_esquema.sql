@@ -47,3 +47,59 @@ CREATE TABLE empleado (
    id_sala       INTEGER       NOT NULL
                  REFERENCES sala_venta (id_sala) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
+
+-- produccion de uva
+CREATE TABLE cepa (
+   id_cepa SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   nombre  VARCHAR(40) NOT NULL,
+   tipo    tipo_cepa   NOT NULL
+);
+
+CREATE TABLE finca (
+   id_finca        INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   nombre          VARCHAR(80)  NOT NULL,
+   superficie_ha   NUMERIC(8,2) NOT NULL,
+   id_departamento SMALLINT     NOT NULL
+                   REFERENCES departamento (id_departamento) ON DELETE RESTRICT ON UPDATE RESTRICT
+);
+
+-- entidad debil: se identifica por la finca y el numero dentro de ella
+CREATE TABLE parcela (
+   id_finca        INTEGER      NOT NULL
+                   REFERENCES finca (id_finca) ON DELETE CASCADE ON UPDATE RESTRICT,
+   nro_parcela     SMALLINT     NOT NULL,
+   superficie_ha   NUMERIC(7,2) NOT NULL,
+   anio_plantacion SMALLINT     NOT NULL,
+   id_cepa         SMALLINT     NOT NULL
+                   REFERENCES cepa (id_cepa) ON DELETE RESTRICT ON UPDATE RESTRICT,
+   PRIMARY KEY (id_finca, nro_parcela)
+);
+
+CREATE TABLE bodega (
+   cuit         cuit_dom     PRIMARY KEY,
+   razon_social VARCHAR(100) NOT NULL,
+   domicilio    VARCHAR(120) NOT NULL
+);
+
+CREATE TABLE lote_uva (
+   nro_lote      INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   id_finca      INTEGER       NOT NULL,
+   nro_parcela   SMALLINT      NOT NULL,
+   campania      SMALLINT      NOT NULL,
+   fecha_cosecha DATE          NOT NULL,
+   kilos         NUMERIC(10,2) NOT NULL,
+   cuit_bodega   cuit_dom      NOT NULL
+                 REFERENCES bodega (cuit) ON DELETE RESTRICT ON UPDATE CASCADE,
+   FOREIGN KEY (id_finca, nro_parcela)
+                 REFERENCES parcela (id_finca, nro_parcela) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE TABLE analisis_calidad (
+   id_analisis  INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+   nro_lote     INTEGER      NOT NULL
+                REFERENCES lote_uva (nro_lote) ON DELETE CASCADE ON UPDATE RESTRICT,
+   fecha        DATE         NOT NULL,
+   brix         NUMERIC(4,1) NOT NULL,
+   ph           NUMERIC(3,2) NOT NULL,
+   acidez_total NUMERIC(4,2) NOT NULL
+);
