@@ -1,0 +1,21 @@
+total de vinos antes:
+"total":409
+
+GET /vinos?nombre=Malbec
+{"pagina":1,"tamanio":3,"total":62,"datos":[{"cod_vino":317,"nombre":"Malbec Clásico","tipo":"tinto","anada":2018,"volumen_ml":750,"graduacion":14.07,"precio":7400.0,"cuit_bodega":"30437575173","bodega":"Bodega Moreno"},{"cod_vino":318,"nombre":"Malbec Clásico","tipo":"tinto","anada":2021,"volumen_ml":750,"graduacion":14.2,"precio":6800.0,"cuit_bodega":"30437575173","bodega":"Bodega Moreno"},{"cod_vino":316,"nombre":"Malbec Clásico","tipo":"tinto","anada":2021,"volumen_ml":3000,"graduacion":14.56,"precio":24400.0,"cuit_bodega":"30437575173","bodega":"Bodega Moreno"}]}
+http 200
+
+GET /vinos?nombre=' OR '1'='1
+{"pagina":1,"tamanio":3,"total":0,"datos":[]}
+http 200
+
+GET /vinos?nombre='; DROP TABLE vino; --
+{"pagina":1,"tamanio":3,"total":0,"datos":[]}
+http 200
+
+GET /vinos?tipo=tinto' OR '1'='1
+{"error":"invalid input value for enum tipo_vino: \"tinto' OR '1'='1\"","sqlstate":"22P02"}
+http 400
+
+total de vinos despues:
+"total":409
