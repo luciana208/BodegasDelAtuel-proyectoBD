@@ -36,6 +36,15 @@ services:
     ports:
       - "127.0.0.1:${API_PORT:-8000}:8000"
 
+  front:
+    build: ./front
+    depends_on:
+      - api
+    environment:
+      API_URL: ${API_URL:-http://localhost:8000}
+    ports:
+      - "127.0.0.1:${FRONT_PORT:-8080}:80"
+
   # pruebas de la api contra la base real, se corren con: docker compose run --rm api-pruebas
   api-pruebas:
     build: ./api
