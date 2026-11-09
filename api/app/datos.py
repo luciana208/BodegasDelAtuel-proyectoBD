@@ -360,5 +360,85 @@ def procesar_ingreso(conn, cod):
     conn.execute('CALL sp_procesar_ingreso(%s)', (cod,))
 
 
+# reportes
+
+def top_vinos(conn, limite):
+    return conn.execute('''
+        SELECT v.cod_vino, v.nombre, v.anada, v.volumen_ml, SUM(r.cantidad) AS botellas
+          FROM renglon_comprobante r
+          JOIN vino v ON v.cod_vino = r.cod_vino
+         GROUP BY v.cod_vino, v.nombre, v.anada, v.volumen_ml
+         ORDER BY botellas DESC
+         LIMIT %s''', (limite,)).fetchall()
+
+
+def ventas_por_sala(conn, meses):
+    return conn.execute('''
+        SELECT c.id_sala, l.nombre AS localidad, count(*) AS comprobantes, SUM(c.total) AS monto
+          FROM comprobante c
+          JOIN sala_venta s ON s.id_sala = c.id_sala
+          JOIN localidad l ON l.id_localidad = s.id_localidad
+         WHERE c.fecha >= CURRENT_DATE - make_interval(months => %s)
+         GROUP BY c.id_sala, l.nombre
+         ORDER BY monto DESC''', (meses,)).fetchall()
+
+
+def vinos_sin_stock(conn, id_sala):
+    return conn.execute('''
+        SELECT v.cod_vino, v.nombre, v.anada, v.volumen_ml, d.cantidad AS stock_deposito
+          FROM vino v
+          JOIN stock_deposito d ON d.cod_vino = v.cod_vino
+         WHERE d.cantidad > 0
+           AND NOT EXISTS (SELECT 1 FROM stock_sala s
+                            WHERE s.id_sala = %s AND s.cod_vino = v.cod_vino AND s.cantidad > 0)
+         ORDER BY v.nombre, v.anada''', (id_sala,)).fetchall()
+
+
+def transportista_activo(conn):
+    return conn.execute('''
+        WITH actividad AS (
+          SELECT t.cod_transporte, t.razon_social, count(DISTINCT i.cod_ingreso) AS ingresos,
+                 COALESCE(SUM(r.cantidad), 0) AS botellas
+            FROM transportista t
+            JOIN ingreso i ON i.cod_transporte = t.cod_transporte
+            LEFT JOIN renglon_ingreso r ON r.cod_ingreso = i.cod_ingreso
+           WHERE i.fecha >= CURRENT_DATE - INTERVAL '1 month'
+           GROUP BY t.cod_transporte, t.razon_social)
+        SELECT * FROM actividad
+         WHERE ingresos = (SELECT max(ingresos) FROM actividad)
+         ORDER BY botellas DESC''').fetchall()
+
+
+def trazabilidad_vino(conn, cod_vino):
+    # recorrido de un vino: de que bodega viene, por que ingresos entro, a que salas se transfirio y donde se vendio
+    vino = obtener_vino(conn, cod_vino)
+    if vino is None:
+        return None
+    vino['ingresos'] = conn.execute('''
+        SELECT i.cod_ingreso, i.fecha, i.estado, t.razon_social AS transportista, r.cantidad
+          FROM renglon_ingreso r
+          JOIN ingreso i ON i.cod_ingreso = r.cod_ingreso
+          JOIN transportista t ON t.cod_transporte = i.cod_transporte
+         WHERE r.cod_vino = %s
+         ORDER BY i.fecha, i.cod_ingreso''', (cod_vino,)).fetchall()
+    vino['transferencias'] = conn.execute('''
+        SELECT t.nro_transferencia, t.fecha_confeccion, t.estado, t.id_sala, r.cantidad
+          FROM renglon_transferencia r
+          JOIN transferencia t ON t.nro_transferencia = r.nro_transferencia
+         WHERE r.cod_vino = %s
+         ORDER BY t.fecha_confeccion, t.nro_transferencia''', (cod_vino,)).fetchall()
+    vino['ventas_por_sala'] = conn.execute('''
+        SELECT c.id_sala, l.nombre AS localidad, SUM(r.cantidad) AS botellas,
+               fn_stock_sala(c.id_sala, %(vino)s) AS stock_actual
+          FROM renglon_comprobante r
+          JOIN comprobante c ON c.nro_comprobante = r.nro_comprobante
+          JOIN sala_venta s ON s.id_sala = c.id_sala
+          JOIN localidad l ON l.id_localidad = s.id_localidad
+         WHERE r.cod_vino = %(vino)s
+         GROUP BY c.id_sala, l.nombre
+         ORDER BY botellas DESC''', {'vino': cod_vino}).fetchall()
+    return vino
+
+
 def salud(conn):
     return conn.execute('SELECT current_user AS usuario, current_database() AS base, version() AS version').fetchone()

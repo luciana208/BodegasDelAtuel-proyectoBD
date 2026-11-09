@@ -15,7 +15,8 @@ from . import datos
 from .config import origenes_cors
 from .db import obtener_conexion, pool
 from .errores import manejar_error_base, manejar_error_http, manejar_error_validacion
-from .modelos import ClienteEntrada, ComprobanteEntrada, Corte, IngresoEntrada, Permiso, Renglon, TransferenciaEntrada, VinoEntrada
+from .modelos import (ClienteEntrada, ComprobanteEntrada, IngresoEntrada, Renglon,
+                      TransferenciaEntrada, VinoEntrada)
 
 
 @asynccontextmanager
@@ -268,3 +269,35 @@ def terminar_ingreso(cod: int, conn=Depends(obtener_conexion)):
 def procesar_ingreso(cod: int, conn=Depends(obtener_conexion)):
     datos.procesar_ingreso(conn, cod)
     return datos.obtener_ingreso(conn, cod)
+
+
+# reportes
+
+@app.get('/reportes/top-vinos', tags=['reportes'], summary='Vinos con mas botellas vendidas')
+def top_vinos(limite: int = Query(10, ge=1, le=100), conn=Depends(obtener_conexion)):
+    return datos.top_vinos(conn, limite)
+
+
+@app.get('/reportes/ventas-por-sala', tags=['reportes'], summary='Monto vendido por sala en los ultimos meses')
+def ventas_por_sala(meses: int = Query(3, ge=1, le=60, description='3 es el ultimo trimestre'),
+                    conn=Depends(obtener_conexion)):
+    return datos.ventas_por_sala(conn, meses)
+
+
+@app.get('/reportes/vinos-sin-stock', tags=['reportes'], summary='Vinos sin stock en una sala pero con stock en el deposito')
+def vinos_sin_stock(sala: int, conn=Depends(obtener_conexion)):
+    return datos.vinos_sin_stock(conn, sala)
+
+
+@app.get('/reportes/transportista-activo', tags=['reportes'], summary='Transportista con mas ingresos en el ultimo mes')
+def transportista_activo(conn=Depends(obtener_conexion)):
+    return datos.transportista_activo(conn)
+
+
+@app.get('/reportes/trazabilidad/{cod_vino}', tags=['reportes'],
+         summary='Recorrido de un vino: ingresos, transferencias y ventas por sala')
+def trazabilidad(cod_vino: int, conn=Depends(obtener_conexion)):
+    vino = datos.trazabilidad_vino(conn, cod_vino)
+    if vino is None:
+        no_encontrado('El vino')
+    return vino
