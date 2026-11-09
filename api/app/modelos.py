@@ -43,3 +43,14 @@ class ClienteEntrada(BaseModel):
     nro_habilitacion: str | None = Field(default=None, description='solo distribuidores')
     pais_destino: str | None = Field(default=None, description='solo exportadores')
     permisos: list[Permiso] = Field(default=[], description='solo exportadores')
+
+
+class Renglon(BaseModel):
+    cod_vino: int
+    cantidad: int
+
+
+class ComprobanteEntrada(BaseModel):
+    id_cliente: int
+    id_sala: int
+    renglones: list[Renglon] = Field(min_length=1)

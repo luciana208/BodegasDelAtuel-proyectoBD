@@ -228,5 +228,40 @@ def borrar_cliente(conn, id_cliente):
     return conn.execute('DELETE FROM cliente WHERE id_cliente = %s', (id_cliente,)).rowcount > 0
 
 
+# comprobantes
+
+def crear_comprobante(conn, comprobante):
+    # la venta completa en una transaccion: si un renglon no tiene stock se deshace todo
+    with conn.transaction():
+        nro = conn.execute('''
+            INSERT INTO comprobante (id_cliente, id_sala) VALUES (%s, %s)
+            RETURNING nro_comprobante''', (comprobante.id_cliente, comprobante.id_sala)).fetchone()['nro_comprobante']
+        for renglon in comprobante.renglones:
+            conn.execute('INSERT INTO renglon_comprobante (nro_comprobante, cod_vino, cantidad) VALUES (%s, %s, %s)',
+                         (nro, renglon.cod_vino, renglon.cantidad))
+    return nro
+
+
+def obtener_comprobante(conn, nro):
+    comprobante = conn.execute('''
+        SELECT c.nro_comprobante, c.fecha, c.id_cliente, cl.nombre AS cliente, cl.tipo AS tipo_cliente,
+               c.id_sala, l.nombre AS localidad, c.subtotal, c.descuento, c.total
+          FROM comprobante c
+          JOIN cliente cl ON cl.id_cliente = c.id_cliente
+          JOIN sala_venta s ON s.id_sala = c.id_sala
+          JOIN localidad l ON l.id_localidad = s.id_localidad
+         WHERE c.nro_comprobante = %s''', (nro,)).fetchone()
+    if comprobante is None:
+        return None
+    comprobante['renglones'] = conn.execute('''
+        SELECT r.cod_vino, v.nombre, v.anada, v.volumen_ml, r.cantidad, r.precio_unitario,
+               r.porc_descuento, r.subtotal
+          FROM renglon_comprobante r
+          JOIN vino v ON v.cod_vino = r.cod_vino
+         WHERE r.nro_comprobante = %s
+         ORDER BY r.cod_vino''', (nro,)).fetchall()
+    return comprobante
+
+
 def salud(conn):
     return conn.execute('SELECT current_user AS usuario, current_database() AS base, version() AS version').fetchone()

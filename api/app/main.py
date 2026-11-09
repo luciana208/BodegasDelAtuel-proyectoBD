@@ -15,7 +15,7 @@ from . import datos
 from .config import origenes_cors
 from .db import obtener_conexion, pool
 from .errores import manejar_error_base, manejar_error_http, manejar_error_validacion
-from .modelos import ClienteEntrada, Corte, Permiso, VinoEntrada
+from .modelos import ClienteEntrada, ComprobanteEntrada, Corte, Permiso, Renglon, VinoEntrada
 
 
 @asynccontextmanager
@@ -169,3 +169,19 @@ def borrar_cliente(id_cliente: int, conn=Depends(obtener_conexion)):
     if not datos.borrar_cliente(conn, id_cliente):
         no_encontrado('El cliente')
     return Response(status_code=204)
+
+
+# comprobantes
+
+@app.post('/comprobantes', tags=['ventas'], status_code=201, summary='Registrar una venta completa en una transaccion')
+def crear_comprobante(comprobante: ComprobanteEntrada, conn=Depends(obtener_conexion)):
+    nro = datos.crear_comprobante(conn, comprobante)
+    return datos.obtener_comprobante(conn, nro)
+
+
+@app.get('/comprobantes/{nro}', tags=['ventas'], summary='Comprobante con sus renglones')
+def obtener_comprobante(nro: int, conn=Depends(obtener_conexion)):
+    comprobante = datos.obtener_comprobante(conn, nro)
+    if comprobante is None:
+        no_encontrado('El comprobante')
+    return comprobante
