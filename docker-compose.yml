@@ -100,5 +100,18 @@ services:
       - ./db:/repo/db:ro
       - ./docs/resultados:/repo/docs/resultados
 
+  # herramientas para la base en la nube: docker compose run --rm nube bash db/nube/<script>
+  nube:
+    build: ./db/seed
+    profiles: ["nube"]
+    env_file:
+      - path: .env.nube
+        required: false
+    environment:
+      TZ: America/Argentina/Mendoza
+    working_dir: /repo
+    volumes:
+      - .:/repo
+
 volumes:
   datos_db:
