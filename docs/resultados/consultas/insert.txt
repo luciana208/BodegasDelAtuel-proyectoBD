@@ -1,0 +1,132 @@
+Pager usage is off.
+BEGIN
+ cod_transporte |    razon_social    | envios 
+----------------+--------------------+--------
+              5 | Transportes Garcia |      1
+             11 | Molina Cargas      |      2
+             12 | Expreso Castro     |      3
+(3 rows)
+
+ cod_transporte 
+----------------
+              6
+              9
+             10
+(3 rows)
+
+INSERT 0 1
+ cod_transporte 
+----------------
+              5
+              6
+              9
+             10
+(4 rows)
+
+ROLLBACK
+BEGIN
+ tintos_14_o_mas 
+-----------------
+             161
+(1 row)
+
+ maridajes 
+-----------
+        12
+(1 row)
+
+INSERT 0 1
+INSERT 0 161
+ id_maridaje |      nombre      | temperatura_servicio | vinos 
+-------------+------------------+----------------------+-------
+          14 | Cordero al disco |                 17.0 |   161
+(1 row)
+
+ROLLBACK
+BEGIN
+ cod_vino | stock 
+----------+-------
+       75 |    24
+      233 |    24
+      242 |    24
+(3 rows)
+
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+ nro_comprobante | cod_vino | cantidad | precio_unitario | porc_descuento | subtotal 
+-----------------+----------+----------+-----------------+----------------+----------
+          150004 |       75 |        2 |        32900.00 |          20.00 | 52640.00
+          150004 |      233 |        1 |         6600.00 |          20.00 |  5280.00
+          150004 |      242 |        3 |        18100.00 |          20.00 | 43440.00
+(3 rows)
+
+ nro_comprobante |   fecha    | id_cliente | id_sala | subtotal  | descuento |   total   | fn_subtotal | fn_total  
+-----------------+------------+------------+---------+-----------+-----------+-----------+-------------+-----------
+          150004 | 2026-11-08 |          1 |       1 | 126700.00 |  25340.00 | 101360.00 |   126700.00 | 101360.00
+(1 row)
+
+ cod_vino | stock 
+----------+-------
+       75 |    22
+      233 |    23
+      242 |    21
+(3 rows)
+
+ROLLBACK
+BEGIN
+ bodegas 
+---------
+      12
+(1 row)
+
+INSERT 0 1
+ bodegas 
+---------
+      13
+(1 row)
+
+    cuit     |      razon_social      |              domicilio               
+-------------+------------------------+--------------------------------------
+ 30712345671 | Bodega Valle del Atuel | Ruta Nacional 143 km 785, San Rafael
+(1 row)
+
+ROLLBACK
+BEGIN
+ salas 
+-------
+    30
+(1 row)
+
+ id_sala |       calle        | numero | dia_cierre | id_localidad 
+---------+--------------------+--------+------------+--------------
+      35 | Avenida San Martín |   1450 | lunes      |           35
+(1 row)
+
+INSERT 0 1
+ salas 
+-------
+    31
+(1 row)
+
+ROLLBACK
+BEGIN
+ ingresos_en_confeccion 
+------------------------
+                      2
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+ cod_ingreso |   fecha    |    estado     | cod_transporte | cuit_bodega | cod_vino |     nombre     | anada | volumen_ml | cantidad 
+-------------+------------+---------------+----------------+-------------+----------+----------------+-------+------------+----------
+        1656 | 2026-11-08 | en_confeccion |              1 | 30774465223 |        1 | Malbec Reserva |  2021 |        750 |      120
+(1 row)
+
+ ingresos_en_confeccion 
+------------------------
+                      3
+(1 row)
+
+ROLLBACK
