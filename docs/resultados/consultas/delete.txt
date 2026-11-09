@@ -1,0 +1,90 @@
+Pager usage is off.
+BEGIN
+ comprobantes | renglones_totales 
+--------------+-------------------
+        18855 |            506878
+(1 row)
+
+DELETE 18855
+ comprobantes | renglones_totales 
+--------------+-------------------
+            0 |            443463
+(1 row)
+
+ROLLBACK
+BEGIN
+ id_cepa |         nombre         
+---------+------------------------
+      16 | Tannat
+      17 | Ancellotta
+      18 | Pedro Giménez
+      19 | Moscatel de Alejandría
+(4 rows)
+
+DELETE 4
+ cepas 
+-------
+    15
+(1 row)
+
+ROLLBACK
+BEGIN
+    cuit     |         nombre          | fecha_ingreso | anios 
+-------------+-------------------------+---------------+-------
+ 27554657910 | Dr(a). Ciro Aguirre     | 2013-01-29    |    13
+ 27964854330 | Helena Ruiz             | 2014-04-07    |    12
+ 20823381507 | Guillermina Diaz Ojeda  | 2020-08-03    |     6
+ 20791142858 | Dr(a). Salvador Suarez  | 2020-10-10    |     6
+ 20458434965 | Julieta Agustin Sanchez | 2025-06-15    |     1
+ 20986745042 | Sr(a). Simon Vazquez    | 2026-07-15    |     0
+(6 rows)
+
+DELETE 2
+    cuit     |         nombre         | fecha_ingreso | anios 
+-------------+------------------------+---------------+-------
+ 27554657910 | Dr(a). Ciro Aguirre    | 2013-01-29    |    13
+ 27964854330 | Helena Ruiz            | 2014-04-07    |    12
+ 20823381507 | Guillermina Diaz Ojeda | 2020-08-03    |     6
+ 20791142858 | Dr(a). Salvador Suarez | 2020-10-10    |     6
+(4 rows)
+
+ROLLBACK
+BEGIN
+ clientes | socios_totales 
+----------+----------------
+      151 |          15028
+(1 row)
+
+DELETE 151
+ clientes | socios_totales 
+----------+----------------
+        0 |          14877
+(1 row)
+
+ROLLBACK
+BEGIN
+ ingresos | renglones_totales | stock_deposito 
+----------+-------------------+----------------
+     1352 |              4169 |          61486
+(1 row)
+
+DELETE 1352
+ ingresos | renglones_totales | stock_deposito 
+----------+-------------------+----------------
+        0 |               894 |          61486
+(1 row)
+
+ROLLBACK
+BEGIN
+ clientes 
+----------
+      115
+(1 row)
+
+DELETE 115
+ clientes 
+----------
+        0
+(1 row)
+
+ROLLBACK
