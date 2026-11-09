@@ -1,0 +1,194 @@
+/* estilos generales */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #222;
+  background: #f3f1ef;
+}
+
+header {
+  background: #5a1e2b;
+  color: #fff;
+  padding: 12px 24px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+nav button {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #a8737d;
+  margin-right: 6px;
+}
+
+nav button.activo {
+  background: #fff;
+  color: #5a1e2b;
+}
+
+main {
+  padding: 16px 24px;
+}
+
+h2 {
+  margin-top: 0;
+  color: #5a1e2b;
+}
+
+h3 {
+  margin: 12px 0 8px;
+  font-size: 16px;
+}
+
+/* formularios */
+label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+input,
+select {
+  padding: 5px 6px;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+button {
+  padding: 6px 12px;
+  border: 1px solid #5a1e2b;
+  border-radius: 3px;
+  background: #5a1e2b;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #ccc;
+  border-color: #ccc;
+  color: #777;
+  cursor: default;
+}
+
+button.secundario {
+  background: #fff;
+  color: #5a1e2b;
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.opciones label {
+  flex-direction: row;
+  align-items: center;
+  margin-right: 14px;
+}
+
+.opciones input {
+  min-width: 0;
+}
+
+/* tablas y tarjetas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-bottom: 12px;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+th {
+  background: #ece6e3;
+}
+
+td.numero {
+  text-align: right;
+}
+
+.tarjeta {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.desplazable {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.oculto {
+  display: none;
+}
+
+/* mensajes de la api */
+.mensaje:empty {
+  display: none;
+}
+
+.mensaje {
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border-radius: 3px;
+}
+
+.mensaje.error {
+  background: #f8e1e1;
+  border: 1px solid #d9a3a3;
+  color: #7a1c1c;
+}
+
+.mensaje.ok {
+  background: #e3f0e3;
+  border: 1px solid #a9cfa9;
+  color: #24592a;
+}
+
+@media (max-width: 800px) {
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+}
