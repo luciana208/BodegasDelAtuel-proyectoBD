@@ -1,0 +1,25 @@
+catalogo filas 15 Página 1 de 28 (409 vinos)
+tipos filtrados [ 'blanco' ] Página 1 de 7 (98 vinos)
+pagina 2 Página 2 de 7 (98 vinos)
+detalle 349 - Chardonnay Clásico 2020 375 mlBodega Gutierrez | blanco | 12.33° | $ 2.900,00 | Stock: 86 en depósito, 150 en salas, 236 en totalCepaTipoPorcentajeChardon
+error alta Los porcentajes de corte del vino 410 suman 90.00 y tienen que sumar 100 (RN-05)
+alta ok Vino 411 guardado Editar vino 411
+edicion Vino 411 guardado
+vinos encontrados 38
+error venta Stock insuficiente del vino 250 en la sala 1: hay 0 y se piden 9999 (RN-09)
+vino elegido 242
+venta Venta registrada | Comprobante 150002 del 2026-11-08Ponce y Asociados (distribuidor) | Sala 1 - San RafaelVinoCantidadPrecio unitarioDescuentoSubtotal242 - Alvarez Blend Single Vineyard 2021 375 ml2$ 18.100,0020 %$ 28.960,00Subtotal: $ 36.200,00 | Descuento: $ 7.240,00 | Total: $ 28.960,00
+nueva Sala 2 - Mendoza | Fecha: 2026-11-08 | Estado: en_confeccion terminar habilitado true procesar habilitado false
+terminar vacia La transferencia 3029 no tiene renglones y no se puede terminar (RN-11)
+renglones 1
+terminada Sala 2 - Mendoza | Fecha: 2026-11-08 | Estado: terminado terminar habilitado false procesar habilitado true agregar habilitado false
+procesada Sala 2 - Mendoza | Fecha: 2026-11-08 | Estado: procesado |  procesar habilitado false
+lista 10
+top 10 sin stock sala 296
+barras grafico 30
+sin stock sala 5 297
+errores de la pagina [
+  'console Failed to load resource: the server responded with a status of 409 (Conflict)',
+  'console Failed to load resource: the server responded with a status of 409 (Conflict)',
+  'console Failed to load resource: the server responded with a status of 409 (Conflict)'
+]
