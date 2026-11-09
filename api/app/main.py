@@ -15,7 +15,7 @@ from . import datos
 from .config import origenes_cors
 from .db import obtener_conexion, pool
 from .errores import manejar_error_base, manejar_error_http, manejar_error_validacion
-from .modelos import Corte, VinoEntrada
+from .modelos import ClienteEntrada, Corte, Permiso, VinoEntrada
 
 
 @asynccontextmanager
@@ -128,4 +128,44 @@ def actualizar_vino(cod_vino: int, vino: VinoEntrada, conn=Depends(obtener_conex
 def borrar_vino(cod_vino: int, conn=Depends(obtener_conexion)):
     if not datos.borrar_vino(conn, cod_vino):
         no_encontrado('El vino')
+    return Response(status_code=204)
+
+
+# clientes
+
+@app.get('/clientes', tags=['clientes'], summary='Listado de clientes con filtros y paginacion')
+def listar_clientes(tipo: str | None = Query(None, description='socio, distribuidor o exportador'),
+                    nombre: str | None = Query(None, description='parte del nombre'),
+                    pagina_nro: int = Query(1, alias='pagina', ge=1),
+                    tamanio: int = Query(20, ge=1, le=100),
+                    conn=Depends(obtener_conexion)):
+    filas = datos.listar_clientes(conn, tipo, nombre, tamanio, (pagina_nro - 1) * tamanio)
+    return pagina(filas, pagina_nro, tamanio)
+
+
+@app.get('/clientes/{id_cliente}', tags=['clientes'], summary='Detalle de un cliente con los datos de su tipo')
+def obtener_cliente(id_cliente: int, conn=Depends(obtener_conexion)):
+    cliente = datos.obtener_cliente(conn, id_cliente)
+    if cliente is None:
+        no_encontrado('El cliente')
+    return cliente
+
+
+@app.post('/clientes', tags=['clientes'], status_code=201, summary='Alta de un cliente de cualquiera de los tres tipos')
+def crear_cliente(cliente: ClienteEntrada, conn=Depends(obtener_conexion)):
+    id_cliente = datos.crear_cliente(conn, cliente)
+    return datos.obtener_cliente(conn, id_cliente)
+
+
+@app.put('/clientes/{id_cliente}', tags=['clientes'], summary='Modificacion de un cliente')
+def actualizar_cliente(id_cliente: int, cliente: ClienteEntrada, conn=Depends(obtener_conexion)):
+    if not datos.actualizar_cliente(conn, id_cliente, cliente):
+        no_encontrado('El cliente')
+    return datos.obtener_cliente(conn, id_cliente)
+
+
+@app.delete('/clientes/{id_cliente}', tags=['clientes'], status_code=204, summary='Baja de un cliente sin compras')
+def borrar_cliente(id_cliente: int, conn=Depends(obtener_conexion)):
+    if not datos.borrar_cliente(conn, id_cliente):
+        no_encontrado('El cliente')
     return Response(status_code=204)
