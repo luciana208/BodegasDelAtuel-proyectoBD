@@ -1,0 +1,102 @@
+idx_comprobante_fecha_btree
+SELECT c.id_sala, SUM(c.total) AS monto
+  FROM comprobante c
+ WHERE c.fecha >= CURRENT_DATE - INTERVAL '3 months'
+ GROUP BY c.id_sala
+ ORDER BY monto DESC
+
+con los indices de 008
+Sort  (cost=1591.00..1591.08 rows=30 width=36) (actual time=2.898..2.900 rows=30 loops=1)
+  Sort Key: (sum(total)) DESC
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=130
+  ->  HashAggregate  (cost=1589.89..1590.27 rows=30 width=36) (actual time=2.882..2.890 rows=30 loops=1)
+        Group Key: id_sala
+        Batches: 1  Memory Usage: 32kB
+        Buffers: shared hit=130
+        ->  Bitmap Heap Scan on comprobante c  (cost=13.72..1556.22 rows=6734 width=10) (actual time=0.654..1.611 rows=6409 loops=1)
+              Recheck Cond: (fecha >= (CURRENT_DATE - '3 mons'::interval))
+              Rows Removed by Index Recheck: 5347
+              Heap Blocks: lossy=128
+              Buffers: shared hit=130
+              ->  Bitmap Index Scan on idx_comprobante_fecha_brin  (cost=0.00..12.04 rows=15000 width=0) (actual time=0.008..0.008 rows=1280 loops=1)
+                    Index Cond: (fecha >= (CURRENT_DATE - '3 mons'::interval))
+                    Buffers: shared hit=2
+Planning:
+  Buffers: shared hit=1
+Planning Time: 0.067 ms
+Execution Time: 2.919 ms
+
+con idx_comprobante_fecha_btree
+Sort  (cost=249.66..249.74 rows=30 width=36) (actual time=1.984..1.986 rows=30 loops=1)
+  Sort Key: (sum(total)) DESC
+  Sort Method: quicksort  Memory: 26kB
+  Buffers: shared hit=62
+  ->  HashAggregate  (cost=248.55..248.93 rows=30 width=36) (actual time=1.968..1.975 rows=30 loops=1)
+        Group Key: id_sala
+        Batches: 1  Memory Usage: 32kB
+        Buffers: shared hit=62
+        ->  Index Scan using idx_comprobante_fecha_btree on comprobante c  (cost=0.30..213.61 rows=6989 width=10) (actual time=0.006..0.671 rows=6409 loops=1)
+              Index Cond: (fecha >= (CURRENT_DATE - '3 mons'::interval))
+              Buffers: shared hit=62
+Planning Time: 0.056 ms
+Execution Time: 2.002 ms
+
+
+idx_comprobante_fecha_sala
+SELECT count(*) AS comprobantes, SUM(total) AS monto
+  FROM comprobante
+ WHERE id_sala = 1
+   AND fecha >= CURRENT_DATE - INTERVAL '1 year'
+
+con los indices de 008
+Aggregate  (cost=1420.74..1420.75 rows=1 width=40) (actual time=0.521..0.521 rows=1 loops=1)
+  Buffers: shared hit=215
+  ->  Bitmap Heap Scan on comprobante  (cost=32.85..1412.72 rows=1602 width=6) (actual time=0.068..0.326 rows=1666 loops=1)
+        Recheck Cond: ((id_sala = 1) AND (fecha >= (CURRENT_DATE - '1 year'::interval)))
+        Heap Blocks: exact=210
+        Buffers: shared hit=215
+        ->  Bitmap Index Scan on idx_comprobante_sala_fecha  (cost=0.00..32.45 rows=1602 width=0) (actual time=0.048..0.048 rows=1666 loops=1)
+              Index Cond: ((id_sala = 1) AND (fecha >= (CURRENT_DATE - '1 year'::interval)))
+              Buffers: shared hit=5
+Planning:
+  Buffers: shared hit=1
+Planning Time: 0.053 ms
+Execution Time: 0.535 ms
+
+con idx_comprobante_fecha_sala
+Aggregate  (cost=1838.51..1838.52 rows=1 width=40) (actual time=0.717..0.718 rows=1 loops=1)
+  Buffers: shared hit=262
+  ->  Bitmap Heap Scan on comprobante  (cost=451.75..1830.61 rows=1578 width=6) (actual time=0.250..0.517 rows=1666 loops=1)
+        Recheck Cond: ((fecha >= (CURRENT_DATE - '1 year'::interval)) AND (id_sala = 1))
+        Heap Blocks: exact=210
+        Buffers: shared hit=262
+        ->  Bitmap Index Scan on idx_comprobante_fecha_sala  (cost=0.00..451.36 rows=1578 width=0) (actual time=0.229..0.229 rows=1666 loops=1)
+              Index Cond: ((fecha >= (CURRENT_DATE - '1 year'::interval)) AND (id_sala = 1))
+              Buffers: shared hit=52
+Planning:
+  Buffers: shared hit=1
+Planning Time: 0.053 ms
+Execution Time: 0.731 ms
+
+
+idx_cliente_tipo
+SELECT id_cliente, nombre FROM cliente WHERE tipo = 'socio'
+
+con los indices de 008
+Seq Scan on cliente  (cost=0.00..570.00 rows=15028 width=20) (actual time=0.004..2.030 rows=15028 loops=1)
+  Filter: (tipo = 'socio'::tipo_cliente)
+  Rows Removed by Filter: 4972
+  Buffers: shared hit=320
+Planning Time: 0.027 ms
+Execution Time: 2.609 ms
+
+con idx_cliente_tipo
+Seq Scan on cliente  (cost=0.00..570.00 rows=15028 width=20) (actual time=0.005..2.033 rows=15028 loops=1)
+  Filter: (tipo = 'socio'::tipo_cliente)
+  Rows Removed by Filter: 4972
+  Buffers: shared hit=320
+Planning Time: 0.065 ms
+Execution Time: 2.614 ms
+
+

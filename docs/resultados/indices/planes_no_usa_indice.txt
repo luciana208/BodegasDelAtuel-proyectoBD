@@ -1,0 +1,54 @@
+SELECT id_sala, count(*), SUM(total) FROM comprobante WHERE id_sala BETWEEN 2 AND 30 GROUP BY id_sala
+
+plan elegido por el planificador
+Finalize GroupAggregate  (cost=4222.52..4226.64 rows=30 width=44) (actual time=31.760..35.430 rows=29 loops=1)
+  Group Key: id_sala
+  Buffers: shared hit=1287
+  ->  Gather Merge  (cost=4222.52..4225.97 rows=30 width=44) (actual time=31.748..35.389 rows=58 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        Buffers: shared hit=1287
+        ->  Sort  (cost=3222.51..3222.58 rows=30 width=44) (actual time=21.727..21.730 rows=29 loops=2)
+              Sort Key: id_sala
+              Sort Method: quicksort  Memory: 28kB
+              Buffers: shared hit=1287
+              Worker 0:  Sort Method: quicksort  Memory: 28kB
+              ->  Partial HashAggregate  (cost=3221.39..3221.77 rows=30 width=44) (actual time=21.699..21.707 rows=29 loops=2)
+                    Group Key: id_sala
+                    Batches: 1  Memory Usage: 32kB
+                    Buffers: shared hit=1280
+                    Worker 0:  Batches: 1  Memory Usage: 32kB
+                    ->  Parallel Seq Scan on comprobante  (cost=0.00..2603.53 rows=82382 width=10) (actual time=0.008..7.742 rows=70154 loops=2)
+                          Filter: ((id_sala >= 2) AND (id_sala <= 30))
+                          Rows Removed by Filter: 4846
+                          Buffers: shared hit=1280
+Planning Time: 0.094 ms
+Execution Time: 35.467 ms
+
+con enable_seqscan = off
+Finalize GroupAggregate  (cost=6674.65..6678.78 rows=30 width=44) (actual time=33.718..37.482 rows=29 loops=1)
+  Group Key: id_sala
+  Buffers: shared hit=1536
+  ->  Gather Merge  (cost=6674.65..6678.10 rows=30 width=44) (actual time=33.706..37.420 rows=58 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        Buffers: shared hit=1536
+        ->  Sort  (cost=5674.64..5674.72 rows=30 width=44) (actual time=24.033..24.037 rows=29 loops=2)
+              Sort Key: id_sala
+              Sort Method: quicksort  Memory: 28kB
+              Buffers: shared hit=1536
+              Worker 0:  Sort Method: quicksort  Memory: 28kB
+              ->  Partial HashAggregate  (cost=5673.53..5673.91 rows=30 width=44) (actual time=23.993..24.003 rows=29 loops=2)
+                    Group Key: id_sala
+                    Batches: 1  Memory Usage: 32kB
+                    Buffers: shared hit=1529
+                    Worker 0:  Batches: 1  Memory Usage: 32kB
+                    ->  Parallel Bitmap Heap Scan on comprobante  (cost=2539.93..5055.67 rows=82382 width=10) (actual time=2.497..8.733 rows=70154 loops=2)
+                          Recheck Cond: ((id_sala >= 2) AND (id_sala <= 30))
+                          Heap Blocks: exact=819
+                          Buffers: shared hit=1529
+                          ->  Bitmap Index Scan on idx_comprobante_sala_fecha  (cost=0.00..2504.92 rows=140050 width=0) (actual time=4.800..4.801 rows=140309 loops=1)
+                                Index Cond: ((id_sala >= 2) AND (id_sala <= 30))
+                                Buffers: shared hit=279
+Planning Time: 0.188 ms
+Execution Time: 37.549 ms

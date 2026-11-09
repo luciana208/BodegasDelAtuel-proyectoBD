@@ -39,5 +39,23 @@ services:
     volumes:
       - ./docs/resultados:/resultados
 
+  # medicion de indices, se corre aparte con: docker compose run --rm indices
+  indices:
+    build: ./db/seed
+    profiles: ["indices"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    working_dir: /repo
+    command: ["python", "db/indices/medir.py"]
+    volumes:
+      - ./db:/repo/db:ro
+      - ./docs/resultados:/repo/docs/resultados
+
 volumes:
   datos_db:
