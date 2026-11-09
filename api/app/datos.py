@@ -263,5 +263,102 @@ def obtener_comprobante(conn, nro):
     return comprobante
 
 
+# transferencias
+
+def listar_transferencias(conn, id_sala, estado, limite, desde):
+    return conn.execute('''
+        SELECT t.nro_transferencia, t.id_sala, l.nombre AS localidad, t.fecha_confeccion, t.estado,
+               (SELECT count(*) FROM renglon_transferencia r WHERE r.nro_transferencia = t.nro_transferencia) AS renglones,
+               count(*) OVER () AS total_filas
+          FROM transferencia t
+          JOIN sala_venta s ON s.id_sala = t.id_sala
+          JOIN localidad l ON l.id_localidad = s.id_localidad
+         WHERE (%(sala)s::INTEGER IS NULL OR t.id_sala = %(sala)s::INTEGER)
+           AND (%(estado)s::estado_documento IS NULL OR t.estado = %(estado)s::estado_documento)
+         ORDER BY t.nro_transferencia DESC
+         LIMIT %(limite)s OFFSET %(desde)s''',
+        {'sala': id_sala, 'estado': estado, 'limite': limite, 'desde': desde}).fetchall()
+
+
+def crear_transferencia(conn, id_sala):
+    # la fecha de confeccion la fuerza el trigger y el estado arranca en confeccion
+    return conn.execute('INSERT INTO transferencia (id_sala) VALUES (%s) RETURNING nro_transferencia',
+                        (id_sala,)).fetchone()['nro_transferencia']
+
+
+def obtener_transferencia(conn, nro):
+    transferencia = conn.execute('''
+        SELECT t.nro_transferencia, t.id_sala, l.nombre AS localidad, t.fecha_confeccion, t.estado
+          FROM transferencia t
+          JOIN sala_venta s ON s.id_sala = t.id_sala
+          JOIN localidad l ON l.id_localidad = s.id_localidad
+         WHERE t.nro_transferencia = %s''', (nro,)).fetchone()
+    if transferencia is None:
+        return None
+    transferencia['renglones'] = conn.execute('''
+        SELECT r.cod_vino, v.nombre, v.anada, v.volumen_ml, r.cantidad,
+               COALESCE(d.cantidad, 0) AS stock_deposito
+          FROM renglon_transferencia r
+          JOIN vino v ON v.cod_vino = r.cod_vino
+          LEFT JOIN stock_deposito d ON d.cod_vino = r.cod_vino
+         WHERE r.nro_transferencia = %s
+         ORDER BY r.cod_vino''', (nro,)).fetchall()
+    return transferencia
+
+
+def agregar_renglon_transferencia(conn, nro, renglon):
+    conn.execute('INSERT INTO renglon_transferencia (nro_transferencia, cod_vino, cantidad) VALUES (%s, %s, %s)',
+                 (nro, renglon.cod_vino, renglon.cantidad))
+
+
+def terminar_transferencia(conn, nro):
+    # el trigger de estados valida la transicion
+    return conn.execute("UPDATE transferencia SET estado = 'terminado' WHERE nro_transferencia = %s",
+                        (nro,)).rowcount > 0
+
+
+def procesar_transferencia(conn, nro):
+    conn.execute('CALL sp_procesar_transferencia(%s)', (nro,))
+
+
+# ingresos
+
+def crear_ingreso(conn, ingreso):
+    return conn.execute('INSERT INTO ingreso (cod_transporte, cuit_bodega) VALUES (%s, %s) RETURNING cod_ingreso',
+                        (ingreso.cod_transporte, ingreso.cuit_bodega)).fetchone()['cod_ingreso']
+
+
+def obtener_ingreso(conn, cod):
+    ingreso = conn.execute('''
+        SELECT i.cod_ingreso, i.fecha, i.estado, i.cod_transporte, t.razon_social AS transportista,
+               i.cuit_bodega, b.razon_social AS bodega
+          FROM ingreso i
+          JOIN transportista t ON t.cod_transporte = i.cod_transporte
+          JOIN bodega b ON b.cuit = i.cuit_bodega
+         WHERE i.cod_ingreso = %s''', (cod,)).fetchone()
+    if ingreso is None:
+        return None
+    ingreso['renglones'] = conn.execute('''
+        SELECT r.cod_vino, v.nombre, v.anada, v.volumen_ml, r.cantidad
+          FROM renglon_ingreso r
+          JOIN vino v ON v.cod_vino = r.cod_vino
+         WHERE r.cod_ingreso = %s
+         ORDER BY r.cod_vino''', (cod,)).fetchall()
+    return ingreso
+
+
+def agregar_renglon_ingreso(conn, cod, renglon):
+    conn.execute('INSERT INTO renglon_ingreso (cod_ingreso, cod_vino, cantidad) VALUES (%s, %s, %s)',
+                 (cod, renglon.cod_vino, renglon.cantidad))
+
+
+def terminar_ingreso(conn, cod):
+    return conn.execute("UPDATE ingreso SET estado = 'terminado' WHERE cod_ingreso = %s", (cod,)).rowcount > 0
+
+
+def procesar_ingreso(conn, cod):
+    conn.execute('CALL sp_procesar_ingreso(%s)', (cod,))
+
+
 def salud(conn):
     return conn.execute('SELECT current_user AS usuario, current_database() AS base, version() AS version').fetchone()

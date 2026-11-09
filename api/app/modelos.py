@@ -54,3 +54,12 @@ class ComprobanteEntrada(BaseModel):
     id_cliente: int
     id_sala: int
     renglones: list[Renglon] = Field(min_length=1)
+
+
+class TransferenciaEntrada(BaseModel):
+    id_sala: int
+
+
+class IngresoEntrada(BaseModel):
+    cod_transporte: int
+    cuit_bodega: str

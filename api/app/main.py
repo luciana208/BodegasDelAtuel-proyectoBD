@@ -15,7 +15,7 @@ from . import datos
 from .config import origenes_cors
 from .db import obtener_conexion, pool
 from .errores import manejar_error_base, manejar_error_http, manejar_error_validacion
-from .modelos import ClienteEntrada, ComprobanteEntrada, Corte, Permiso, Renglon, VinoEntrada
+from .modelos import ClienteEntrada, ComprobanteEntrada, Corte, IngresoEntrada, Permiso, Renglon, TransferenciaEntrada, VinoEntrada
 
 
 @asynccontextmanager
@@ -185,3 +185,86 @@ def obtener_comprobante(nro: int, conn=Depends(obtener_conexion)):
     if comprobante is None:
         no_encontrado('El comprobante')
     return comprobante
+
+
+# transferencias
+
+@app.get('/transferencias', tags=['transferencias'], summary='Listado de transferencias')
+def listar_transferencias(sala: int | None = None,
+                          estado: str | None = Query(None, description='en_confeccion, terminado o procesado'),
+                          pagina_nro: int = Query(1, alias='pagina', ge=1),
+                          tamanio: int = Query(20, ge=1, le=100),
+                          conn=Depends(obtener_conexion)):
+    filas = datos.listar_transferencias(conn, sala, estado, tamanio, (pagina_nro - 1) * tamanio)
+    return pagina(filas, pagina_nro, tamanio)
+
+
+@app.post('/transferencias', tags=['transferencias'], status_code=201, summary='Crear una transferencia en confeccion')
+def crear_transferencia(transferencia: TransferenciaEntrada, conn=Depends(obtener_conexion)):
+    nro = datos.crear_transferencia(conn, transferencia.id_sala)
+    return datos.obtener_transferencia(conn, nro)
+
+
+@app.get('/transferencias/{nro}', tags=['transferencias'], summary='Transferencia con sus renglones')
+def obtener_transferencia(nro: int, conn=Depends(obtener_conexion)):
+    transferencia = datos.obtener_transferencia(conn, nro)
+    if transferencia is None:
+        no_encontrado('La transferencia')
+    return transferencia
+
+
+@app.post('/transferencias/{nro}/renglones', tags=['transferencias'], status_code=201,
+          summary='Agregar un renglon mientras esta en confeccion')
+def agregar_renglon_transferencia(nro: int, renglon: Renglon, conn=Depends(obtener_conexion)):
+    datos.agregar_renglon_transferencia(conn, nro, renglon)
+    return datos.obtener_transferencia(conn, nro)
+
+
+@app.post('/transferencias/{nro}/terminar', tags=['transferencias'], summary='Pasar la transferencia a terminado')
+def terminar_transferencia(nro: int, conn=Depends(obtener_conexion)):
+    if not datos.terminar_transferencia(conn, nro):
+        no_encontrado('La transferencia')
+    return datos.obtener_transferencia(conn, nro)
+
+
+@app.post('/transferencias/{nro}/procesar', tags=['transferencias'],
+          summary='Procesar la transferencia: mueve el stock del deposito a la sala')
+def procesar_transferencia(nro: int, conn=Depends(obtener_conexion)):
+    datos.procesar_transferencia(conn, nro)
+    return datos.obtener_transferencia(conn, nro)
+
+
+# ingresos
+
+@app.post('/ingresos', tags=['ingresos'], status_code=201, summary='Crear un ingreso en confeccion')
+def crear_ingreso(ingreso: IngresoEntrada, conn=Depends(obtener_conexion)):
+    cod = datos.crear_ingreso(conn, ingreso)
+    return datos.obtener_ingreso(conn, cod)
+
+
+@app.get('/ingresos/{cod}', tags=['ingresos'], summary='Ingreso con sus renglones')
+def obtener_ingreso(cod: int, conn=Depends(obtener_conexion)):
+    ingreso = datos.obtener_ingreso(conn, cod)
+    if ingreso is None:
+        no_encontrado('El ingreso')
+    return ingreso
+
+
+@app.post('/ingresos/{cod}/renglones', tags=['ingresos'], status_code=201,
+          summary='Agregar un renglon mientras esta en confeccion')
+def agregar_renglon_ingreso(cod: int, renglon: Renglon, conn=Depends(obtener_conexion)):
+    datos.agregar_renglon_ingreso(conn, cod, renglon)
+    return datos.obtener_ingreso(conn, cod)
+
+
+@app.post('/ingresos/{cod}/terminar', tags=['ingresos'], summary='Pasar el ingreso a terminado')
+def terminar_ingreso(cod: int, conn=Depends(obtener_conexion)):
+    if not datos.terminar_ingreso(conn, cod):
+        no_encontrado('El ingreso')
+    return datos.obtener_ingreso(conn, cod)
+
+
+@app.post('/ingresos/{cod}/procesar', tags=['ingresos'], summary='Procesar el ingreso: suma el stock al deposito')
+def procesar_ingreso(cod: int, conn=Depends(obtener_conexion)):
+    datos.procesar_ingreso(conn, cod)
+    return datos.obtener_ingreso(conn, cod)
