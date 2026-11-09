@@ -1,0 +1,6 @@
+GET /salud
+{"estado":"ok","usuario":"bodega_app","base":"bodegas","version":"PostgreSQL 17.11 (Debian 17.11-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit","ssl":true}
+vino sin stock en la sala 1: 232
+POST /comprobantes
+{"error":"Stock insuficiente del vino 232 en la sala 1: hay 0 y se piden 1 (RN-09)","sqlstate":"P0001"}
+http 409

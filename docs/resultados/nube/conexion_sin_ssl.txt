@@ -1,0 +1,4 @@
+ Container proyectodbtemporal-nube-run-de68ad499e32 Creating 
+ Container proyectodbtemporal-nube-run-de68ad499e32 Created 
+psql: error: connection to server at "nube-simulada" (172.19.0.5), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host "172.19.0.6", user "bodega_owner", database "bodegas", no encryption
+

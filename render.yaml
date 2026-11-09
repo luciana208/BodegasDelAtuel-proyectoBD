@@ -1,0 +1,26 @@
+# despliegue en render: la api como servicio docker y el front como sitio estatico.
+# los valores con sync: false se cargan a mano en el panel de render
+services:
+  - type: web
+    name: bodegas-api
+    runtime: docker
+    rootDir: api
+    plan: free
+    healthCheckPath: /salud
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: CORS_ORIGINS
+        sync: false
+
+  - type: web
+    name: bodegas-front
+    runtime: static
+    rootDir: front
+    buildCommand: echo "window.API_URL = '$API_URL';" > js/config.js
+    staticPublishPath: .
+    envVars:
+      - key: API_URL
+        sync: false

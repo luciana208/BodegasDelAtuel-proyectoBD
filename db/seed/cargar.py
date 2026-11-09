@@ -30,10 +30,11 @@ FECHA_BASE = os.environ.get('FECHA_BASE') or date.today().isoformat()
 RESULTADOS = os.environ.get('RESULTADOS', '/resultados')
 CATALOGOS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalogos')
 
-CANT_CLIENTES = 20000
-CANT_COMPROBANTES = 150000
-CANT_INGRESOS = 2000
-TRANSFERENCIAS_POR_SALA = 100
+# volumenes; se achican con variables de entorno para la carga reducida en la nube
+CANT_CLIENTES = int(os.environ.get('CANT_CLIENTES', '20000'))
+CANT_COMPROBANTES = int(os.environ.get('CANT_COMPROBANTES', '150000'))
+CANT_INGRESOS = int(os.environ.get('CANT_INGRESOS', '2000'))
+TRANSFERENCIAS_POR_SALA = int(os.environ.get('TRANSFERENCIAS_POR_SALA', '100'))
 
 HOY = date.fromisoformat(FECHA_BASE)
 ANIO = HOY.year

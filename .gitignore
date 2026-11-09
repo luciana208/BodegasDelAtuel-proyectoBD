@@ -151,6 +151,8 @@ activemq-data/
 
 # Environments
 .env
+.env.nube
+backups/
 .envrc
 .venv
 env/

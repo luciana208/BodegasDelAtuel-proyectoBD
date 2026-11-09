@@ -1,0 +1,4 @@
+ Container proyectodbtemporal-nube-run-5672e44ed8d4 Creating 
+ Container proyectodbtemporal-nube-run-5672e44ed8d4 Created 
+psql: error: connection to server at "nube-simulada" (172.19.0.5), port 5432 failed: FATAL:  password authentication failed for user "bodega_owner"
+

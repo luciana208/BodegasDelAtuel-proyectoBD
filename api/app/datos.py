@@ -441,4 +441,6 @@ def trazabilidad_vino(conn, cod_vino):
 
 
 def salud(conn):
-    return conn.execute('SELECT current_user AS usuario, current_database() AS base, version() AS version').fetchone()
+    return conn.execute('''
+        SELECT current_user AS usuario, current_database() AS base, version() AS version,
+               (SELECT ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid()) AS ssl''').fetchone()
