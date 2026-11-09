@@ -1,0 +1,4 @@
+ Container proyectodbtemporal-nube-run-2b74542c11bd Creating 
+ Container proyectodbtemporal-nube-run-2b74542c11bd Created 
+-rw-r--r-- 1 root root 880K Nov  8 02:09 backups/ensayo.dump
+los conteos de las 30 tablas coinciden entre bodegas y bodegas_restaurada

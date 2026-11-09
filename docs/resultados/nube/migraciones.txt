@@ -1,0 +1,18 @@
+ Container proyectodbtemporal-nube-run-d8ffb5f4a1bc Creating 
+ Container proyectodbtemporal-nube-run-d8ffb5f4a1bc Created 
+aplicando db/migrations/001_esquema.sql
+aplicando db/migrations/002_constraints.sql
+aplicando db/migrations/003_funciones.sql
+aplicando db/migrations/004_procedimientos.sql
+aplicando db/migrations/005_triggers.sql
+aplicando db/migrations/006_vistas.sql
+aplicando db/migrations/007_roles.sql
+aplicando db/migrations/008_indices.sql
+asignando las claves de los roles
+ALTER ROLE
+ALTER ROLE
+   usuario    |  base   | ssl | version_tls |        cifrado         
+--------------+---------+-----+-------------+------------------------
+ bodega_owner | bodegas | t   | TLSv1.3     | TLS_AES_256_GCM_SHA384
+(1 row)
+
