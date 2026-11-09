@@ -20,6 +20,22 @@ services:
       timeout: 5s
       retries: 20
 
+  api:
+    build: ./api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: bodega_app
+      DB_PASSWORD: ${APP_DB_PASSWORD}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      TZ: America/Argentina/Mendoza
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+
   # carga masiva, se corre aparte con: docker compose run --rm seed
   seed:
     build: ./db/seed
