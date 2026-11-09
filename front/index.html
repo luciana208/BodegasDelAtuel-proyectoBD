@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bodegas del Atuel</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <header>
+    <h1>Bodegas del Atuel</h1>
+    <nav>
+      <button data-pantalla="catalogo" class="activo">Catálogo</button>
+      <button data-pantalla="vino">Alta de vino</button>
+      <button data-pantalla="venta">Nueva venta</button>
+      <button data-pantalla="transferencias">Transferencias</button>
+      <button data-pantalla="tablero">Tablero</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- catalogo de vinos -->
+    <section id="catalogo" class="pantalla">
+      <h2>Catálogo de vinos</h2>
+      <form id="filtros" class="fila">
+        <label>Nombre <input type="text" name="nombre"></label>
+        <label>Tipo
+          <select name="tipo">
+            <option value="">Todos</option>
+            <option value="tinto">Tinto</option>
+            <option value="blanco">Blanco</option>
+            <option value="rosado">Rosado</option>
+            <option value="espumante">Espumante</option>
+          </select>
+        </label>
+        <label>Cepa <select name="cepa" class="lista-cepas"><option value="">Todas</option></select></label>
+        <label>Bodega <select name="bodega" class="lista-bodegas"><option value="">Todas</option></select></label>
+        <label>Añada <input type="number" name="anada" min="1990" max="2100"></label>
+        <button type="submit">Buscar</button>
+      </form>
+      <div class="mensaje" id="catalogo-mensaje"></div>
+      <table>
+        <thead>
+          <tr><th>Código</th><th>Nombre</th><th>Tipo</th><th>Añada</th><th>Volumen</th><th>Graduación</th><th>Precio</th><th>Bodega</th><th></th></tr>
+        </thead>
+        <tbody id="tabla-vinos"></tbody>
+      </table>
+      <div class="paginacion">
+        <button id="pagina-anterior">Anterior</button>
+        <span id="pagina-actual"></span>
+        <button id="pagina-siguiente">Siguiente</button>
+      </div>
+      <div id="detalle-vino" class="tarjeta oculto"></div>
+    </section>
+
+    <!-- alta y edicion de vino -->
+    <section id="vino" class="pantalla oculto">
+      <h2 id="vino-titulo">Alta de vino</h2>
+      <form id="form-vino" class="tarjeta">
+        <div class="grilla">
+          <label>Nombre <input type="text" name="nombre" required></label>
+          <label>Tipo
+            <select name="tipo" required>
+              <option value="tinto">Tinto</option>
+              <option value="blanco">Blanco</option>
+              <option value="rosado">Rosado</option>
+              <option value="espumante">Espumante</option>
+            </select>
+          </label>
+          <label>Añada <input type="number" name="anada" required></label>
+          <label>Volumen (ml)
+            <select name="volumen_ml">
+              <option>187</option><option>375</option><option selected>750</option><option>1500</option><option>3000</option>
+            </select>
+          </label>
+          <label>Graduación <input type="number" name="graduacion" step="0.01" required></label>
+          <label>Precio <input type="number" name="precio" step="0.01" required></label>
+          <label>Bodega <select name="cuit_bodega" class="lista-bodegas" required></select></label>
+        </div>
+        <h3>Composición</h3>
+        <table>
+          <thead><tr><th>Cepa</th><th>Porcentaje</th><th></th></tr></thead>
+          <tbody id="filas-corte"></tbody>
+        </table>
+        <button type="button" id="agregar-corte">Agregar cepa</button>
+        <h3>Maridajes</h3>
+        <div id="lista-maridajes" class="opciones"></div>
+        <div class="mensaje" id="vino-mensaje"></div>
+        <div class="fila">
+          <button type="submit">Guardar</button>
+          <button type="button" id="vino-cancelar">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- nueva venta -->
+    <section id="venta" class="pantalla oculto">
+      <h2>Nueva venta</h2>
+      <div class="tarjeta">
+        <div class="fila">
+          <label>Buscar cliente <input type="text" id="buscar-cliente"></label>
+          <button type="button" id="boton-buscar-cliente">Buscar</button>
+          <label>Cliente <select id="venta-cliente"></select></label>
+          <label>Sala <select id="venta-sala" class="lista-salas"></select></label>
+        </div>
+        <div class="fila">
+          <label>Buscar vino <input type="text" id="buscar-vino"></label>
+          <button type="button" id="boton-buscar-vino">Buscar</button>
+          <label>Vino <select id="venta-vino"></select></label>
+          <label>Cantidad <input type="number" id="venta-cantidad" min="1" value="1"></label>
+          <button type="button" id="agregar-renglon">Agregar</button>
+        </div>
+        <table>
+          <thead><tr><th>Código</th><th>Vino</th><th>Cantidad</th><th></th></tr></thead>
+          <tbody id="renglones-venta"></tbody>
+        </table>
+        <div class="mensaje" id="venta-mensaje"></div>
+        <button type="button" id="registrar-venta">Registrar venta</button>
+      </div>
+      <div id="comprobante" class="tarjeta oculto"></div>
+    </section>
+
+    <!-- transferencias -->
+    <section id="transferencias" class="pantalla oculto">
+      <h2>Transferencias</h2>
+      <div class="tarjeta">
+        <div class="fila">
+          <label>Sala <select id="transferencia-sala" class="lista-salas"></select></label>
+          <button type="button" id="nueva-transferencia">Nueva transferencia</button>
+          <label>Abrir número <input type="number" id="abrir-numero" min="1"></label>
+          <button type="button" id="boton-abrir">Abrir</button>
+        </div>
+      </div>
+      <div id="transferencia-actual" class="tarjeta oculto">
+        <h3 id="transferencia-titulo"></h3>
+        <p id="transferencia-datos"></p>
+        <table>
+          <thead><tr><th>Código</th><th>Vino</th><th>Cantidad</th><th>Stock en depósito</th></tr></thead>
+          <tbody id="renglones-transferencia"></tbody>
+        </table>
+        <div class="fila" id="carga-renglon">
+          <label>Buscar vino <input type="text" id="transferencia-buscar-vino"></label>
+          <button type="button" id="transferencia-boton-buscar">Buscar</button>
+          <label>Vino <select id="transferencia-vino"></select></label>
+          <label>Cantidad <input type="number" id="transferencia-cantidad" min="1" value="1"></label>
+          <button type="button" id="agregar-renglon-transferencia">Agregar renglón</button>
+        </div>
+        <div class="mensaje" id="transferencia-mensaje"></div>
+        <div class="fila">
+          <button type="button" id="terminar-transferencia">Terminar</button>
+          <button type="button" id="procesar-transferencia">Procesar</button>
+        </div>
+      </div>
+      <h3>Últimas transferencias</h3>
+      <table>
+        <thead><tr><th>Número</th><th>Sala</th><th>Fecha</th><th>Estado</th><th>Renglones</th><th></th></tr></thead>
+        <tbody id="lista-transferencias"></tbody>
+      </table>
+    </section>
+
+    <!-- tablero -->
+    <section id="tablero" class="pantalla oculto">
+      <h2>Tablero</h2>
+      <div class="columnas">
+        <div class="tarjeta">
+          <h3>Vinos más vendidos</h3>
+          <table>
+            <thead><tr><th>Puesto</th><th>Vino</th><th>Añada</th><th>Volumen</th><th>Botellas</th></tr></thead>
+            <tbody id="tabla-top"></tbody>
+          </table>
+        </div>
+        <div class="tarjeta">
+          <h3>Ventas por sala en el último trimestre</h3>
+          <canvas id="grafico-ventas"></canvas>
+        </div>
+      </div>
+      <div class="tarjeta">
+        <h3>Vinos sin stock en la sala</h3>
+        <label>Sala <select id="tablero-sala" class="lista-salas"></select></label>
+        <div class="desplazable">
+          <table>
+            <thead><tr><th>Código</th><th>Vino</th><th>Añada</th><th>Volumen</th><th>Stock en depósito</th></tr></thead>
+            <tbody id="tabla-sin-stock"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mensaje" id="tablero-mensaje"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
