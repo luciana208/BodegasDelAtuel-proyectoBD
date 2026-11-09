@@ -125,3 +125,204 @@ SELECT c.id_sala, l.nombre AS localidad, count(*) AS comprobantes, SUM(c.total) 
  WHERE c.fecha >= CURRENT_DATE - INTERVAL '3 months'
  GROUP BY c.id_sala, l.nombre
  ORDER BY monto DESC;
+
+/* s9
+   enunciado: ficha de un vino: cepas con sus porcentajes, bodega elaboradora, maridajes y stock
+   total (deposito mas salas).
+   estrategia: la vista v_ficha_vino junta todo en una fila con string_agg en subconsultas,
+   para que el join con cepas y maridajes no multiplique filas. el detalle del stock sale de
+   la vista v_stock_total_vino y las cepas una por fila de un join con composicion */
+SELECT * FROM v_ficha_vino WHERE cod_vino = :vino;
+
+SELECT stock_deposito, stock_salas, stock_total FROM v_stock_total_vino WHERE cod_vino = :vino;
+
+SELECT ce.nombre AS cepa, ce.tipo, co.porcentaje
+  FROM composicion co
+  JOIN cepa ce ON ce.id_cepa = co.id_cepa
+ WHERE co.cod_vino = :vino
+ ORDER BY co.porcentaje DESC;
+
+/* s10
+   enunciado: rendimiento en kg por hectarea de cada parcela y campania, e identificar las
+   parcelas que rinden menos que el promedio de su finca.
+   estrategia: una cte calcula el rendimiento de cada lote (kilos sobre superficie de la parcela).
+   la primera consulta lo lista. la segunda compara cada parcela con una subconsulta correlacionada
+   que calcula el promedio de su finca en la misma campania */
+WITH rendimiento AS (
+  SELECT l.id_finca, l.nro_parcela, l.campania, l.kilos, p.superficie_ha,
+         ROUND(l.kilos / p.superficie_ha, 2) AS kg_por_ha
+    FROM lote_uva l
+    JOIN parcela p ON p.id_finca = l.id_finca AND p.nro_parcela = l.nro_parcela)
+SELECT r.id_finca, f.nombre AS finca, r.nro_parcela, r.campania, r.kilos, r.superficie_ha, r.kg_por_ha
+  FROM rendimiento r
+  JOIN finca f ON f.id_finca = r.id_finca
+ ORDER BY r.id_finca, r.nro_parcela, r.campania;
+
+WITH rendimiento AS (
+  SELECT l.id_finca, l.nro_parcela, l.campania,
+         ROUND(l.kilos / p.superficie_ha, 2) AS kg_por_ha
+    FROM lote_uva l
+    JOIN parcela p ON p.id_finca = l.id_finca AND p.nro_parcela = l.nro_parcela)
+SELECT r.id_finca, f.nombre AS finca, r.nro_parcela, r.campania, r.kg_por_ha,
+       (SELECT ROUND(AVG(r2.kg_por_ha), 2)
+          FROM rendimiento r2
+         WHERE r2.id_finca = r.id_finca AND r2.campania = r.campania) AS promedio_finca
+  FROM rendimiento r
+  JOIN finca f ON f.id_finca = r.id_finca
+ WHERE r.kg_por_ha < (SELECT AVG(r2.kg_por_ha)
+                        FROM rendimiento r2
+                       WHERE r2.id_finca = r.id_finca AND r2.campania = r.campania)
+ ORDER BY r.id_finca, r.campania, r.nro_parcela;
+
+/* s11
+   enunciado: ranking de vinos dentro de cada sala por botellas vendidas y ventas acumuladas
+   mensuales por sala.
+   estrategia: para el ranking, rank() over (partition by sala order by botellas desc) sobre
+   las ventas agrupadas por sala y vino; se muestran los 5 primeros de cada sala. para el
+   acumulado, sum() over (partition by sala y anio order by mes) sobre la vista de ventas
+   mensuales, que va sumando mes a mes y vuelve a empezar cada anio; se muestra el anio actual */
+WITH ventas AS (
+  SELECT c.id_sala, r.cod_vino, SUM(r.cantidad) AS botellas
+    FROM comprobante c
+    JOIN renglon_comprobante r ON r.nro_comprobante = c.nro_comprobante
+   GROUP BY c.id_sala, r.cod_vino),
+ranking AS (
+  SELECT id_sala, cod_vino, botellas,
+         RANK() OVER (PARTITION BY id_sala ORDER BY botellas DESC) AS puesto
+    FROM ventas)
+SELECT k.id_sala, k.puesto, k.cod_vino, v.nombre, k.botellas
+  FROM ranking k
+  JOIN vino v ON v.cod_vino = k.cod_vino
+ WHERE k.puesto <= 5
+ ORDER BY k.id_sala, k.puesto, k.cod_vino;
+
+SELECT *
+  FROM (SELECT id_sala, mes, total_vendido,
+               SUM(total_vendido) OVER (PARTITION BY id_sala, EXTRACT(YEAR FROM mes) ORDER BY mes) AS acumulado_anio
+          FROM v_ventas_mensuales_sala) m
+ WHERE EXTRACT(YEAR FROM mes) = EXTRACT(YEAR FROM CURRENT_DATE)
+ ORDER BY id_sala, mes;
+
+/* s12
+   enunciado: clientes que compraron todos los vinos de una bodega determinada, y clientes que
+   nunca compraron ningun vino tinto.
+   estrategia: la primera es una division con doble not exists: un cliente entra si no hay
+   ningun vino de la bodega que no haya comprado. usa idx_comprobante_cliente. la segunda es
+   un anti join con not exists: clientes para los que no existe ningun renglon de un vino tinto.
+   tambien entran los clientes que nunca compraron nada */
+SELECT cl.id_cliente, cl.nombre, cl.tipo
+  FROM cliente cl
+ WHERE NOT EXISTS (
+       SELECT 1
+         FROM vino v
+         JOIN bodega b ON b.cuit = v.cuit_bodega
+        WHERE b.razon_social = :'bodega'
+          AND NOT EXISTS (
+              SELECT 1
+                FROM comprobante c
+                JOIN renglon_comprobante r ON r.nro_comprobante = c.nro_comprobante
+               WHERE c.id_cliente = cl.id_cliente
+                 AND r.cod_vino = v.cod_vino))
+ ORDER BY cl.id_cliente;
+
+SELECT cl.id_cliente, cl.nombre, cl.tipo
+  FROM cliente cl
+ WHERE NOT EXISTS (
+       SELECT 1
+         FROM comprobante c
+         JOIN renglon_comprobante r ON r.nro_comprobante = c.nro_comprobante
+         JOIN vino v ON v.cod_vino = r.cod_vino
+        WHERE c.id_cliente = cl.id_cliente
+          AND v.tipo = 'tinto')
+ ORDER BY cl.id_cliente;
+
+/* planes de ejecucion de las consultas usadas en la etapa 4 (s1, s3, s4 y s8) y de las
+   avanzadas (s9 a s12) */
+EXPLAIN (ANALYZE)
+SELECT v.cod_vino, v.nombre, v.anada, v.volumen_ml, SUM(r.cantidad) AS botellas
+  FROM renglon_comprobante r
+  JOIN vino v ON v.cod_vino = r.cod_vino
+ GROUP BY v.cod_vino, v.nombre, v.anada, v.volumen_ml
+ ORDER BY botellas DESC
+ LIMIT 10;
+
+EXPLAIN (ANALYZE)
+SELECT cl.tipo, count(DISTINCT cl.id_cliente) AS clientes
+  FROM comprobante c
+  JOIN cliente cl ON cl.id_cliente = c.id_cliente
+ WHERE c.id_sala = :sala
+   AND c.fecha > CURRENT_DATE - 7
+ GROUP BY cl.tipo;
+
+EXPLAIN (ANALYZE)
+SELECT t.id_sala, SUM(r.cantidad) AS botellas_pedidas
+  FROM transferencia t
+  JOIN renglon_transferencia r ON r.nro_transferencia = t.nro_transferencia
+ WHERE r.cod_vino = :vino
+   AND t.fecha_confeccion >= CURRENT_DATE - 15
+ GROUP BY t.id_sala
+ ORDER BY botellas_pedidas DESC
+ LIMIT 5;
+
+EXPLAIN (ANALYZE)
+SELECT c.id_sala, SUM(c.total) AS monto
+  FROM comprobante c
+ WHERE c.fecha >= CURRENT_DATE - INTERVAL '3 months'
+ GROUP BY c.id_sala
+ ORDER BY monto DESC;
+
+EXPLAIN (ANALYZE)
+SELECT * FROM v_ficha_vino WHERE cod_vino = :vino;
+
+EXPLAIN (ANALYZE)
+WITH rendimiento AS (
+  SELECT l.id_finca, l.nro_parcela, l.campania,
+         ROUND(l.kilos / p.superficie_ha, 2) AS kg_por_ha
+    FROM lote_uva l
+    JOIN parcela p ON p.id_finca = l.id_finca AND p.nro_parcela = l.nro_parcela)
+SELECT r.id_finca, r.nro_parcela, r.campania, r.kg_por_ha
+  FROM rendimiento r
+ WHERE r.kg_por_ha < (SELECT AVG(r2.kg_por_ha)
+                        FROM rendimiento r2
+                       WHERE r2.id_finca = r.id_finca AND r2.campania = r.campania);
+
+EXPLAIN (ANALYZE)
+WITH ventas AS (
+  SELECT c.id_sala, r.cod_vino, SUM(r.cantidad) AS botellas
+    FROM comprobante c
+    JOIN renglon_comprobante r ON r.nro_comprobante = c.nro_comprobante
+   GROUP BY c.id_sala, r.cod_vino)
+SELECT id_sala, cod_vino, botellas,
+       RANK() OVER (PARTITION BY id_sala ORDER BY botellas DESC) AS puesto
+  FROM ventas;
+
+EXPLAIN (ANALYZE)
+SELECT id_sala, mes, total_vendido,
+       SUM(total_vendido) OVER (PARTITION BY id_sala, EXTRACT(YEAR FROM mes) ORDER BY mes) AS acumulado_anio
+  FROM v_ventas_mensuales_sala;
+
+EXPLAIN (ANALYZE)
+SELECT cl.id_cliente
+  FROM cliente cl
+ WHERE NOT EXISTS (
+       SELECT 1
+         FROM vino v
+         JOIN bodega b ON b.cuit = v.cuit_bodega
+        WHERE b.razon_social = :'bodega'
+          AND NOT EXISTS (
+              SELECT 1
+                FROM comprobante c
+                JOIN renglon_comprobante r ON r.nro_comprobante = c.nro_comprobante
+               WHERE c.id_cliente = cl.id_cliente
+                 AND r.cod_vino = v.cod_vino));
+
+EXPLAIN (ANALYZE)
+SELECT cl.id_cliente
+  FROM cliente cl
+ WHERE NOT EXISTS (
+       SELECT 1
+         FROM comprobante c
+         JOIN renglon_comprobante r ON r.nro_comprobante = c.nro_comprobante
+         JOIN vino v ON v.cod_vino = r.cod_vino
+        WHERE c.id_cliente = cl.id_cliente
+          AND v.tipo = 'tinto');
