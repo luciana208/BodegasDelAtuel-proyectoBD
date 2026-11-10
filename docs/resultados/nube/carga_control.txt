@@ -1,22 +1,22 @@
 Pager usage is off.
           tabla          | filas 
 -------------------------+-------
- renglon_comprobante     | 50353
+ renglon_comprobante     | 50686
  comprobante             | 15000
  analisis_calidad        |  6903
- renglon_transferencia   |  4026
+ renglon_transferencia   |  4018
  cliente                 |  3000
  lote_uva                |  2741
  socio                   |  2238
- renglon_ingreso         |  1572
- stock_sala              |  1532
- transferencia           |  1228
+ renglon_ingreso         |  1550
+ stock_sala              |  1537
+ transferencia           |  1229
  vino_maridaje           |   837
  composicion             |   665
  parcela                 |   605
  permiso_exportacion     |   604
+ ingreso                 |   547
  distribuidor            |   539
- ingreso                 |   538
  vino                    |   409
  stock_deposito          |   409
  exportador              |   223
@@ -63,15 +63,15 @@ Pager usage is off.
                          dato                         | cantidad 
 ------------------------------------------------------+----------
  comprobantes de la ultima semana                     |       51
- comprobantes del ultimo trimestre                    |      630
- comprobantes de socios con mas de 5 anios            |     1773
- transferencias de los ultimos 15 dias                |       36
- transferencias pendientes                            |       18
+ comprobantes del ultimo trimestre                    |      631
+ comprobantes de socios con mas de 5 anios            |     1747
+ transferencias de los ultimos 15 dias                |       38
+ transferencias pendientes                            |       17
  ingresos del ultimo mes                              |        3
- ingresos procesados de hace mas de 365 dias          |      452
+ ingresos procesados de hace mas de 365 dias          |      462
  socios sin compras dados de alta hace mas de 5 anios |       29
  empleados con mas de 5 anios                         |      110
  exportadores con mas de 3 permisos                   |       63
- pares sala-vino con stock 0                          |      231
+ pares sala-vino con stock 0                          |      229
 (11 rows)
 
