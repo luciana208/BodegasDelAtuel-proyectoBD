@@ -1,42 +1,42 @@
 semilla: 2026
-fecha base: 2026-11-08
+fecha base: 2026-11-10
 
 tiempo de carga con COPY por tabla
-  departamento                    18 filas     0.00 s
-  localidad                       35 filas     0.00 s
-  cepa                            19 filas     0.00 s
-  maridaje                        12 filas     0.00 s
-  bodega                          12 filas     0.00 s
-  transportista                   15 filas     0.00 s
-  transportista_localidad         54 filas     0.00 s
-  sala_venta                      30 filas     0.00 s
-  empleado                       159 filas     0.01 s
-  finca                           40 filas     0.00 s
-  parcela                        605 filas     0.01 s
-  lote_uva                      2741 filas     0.05 s
-  analisis_calidad              6903 filas     0.06 s
-  vino                           409 filas     0.01 s
-  composicion                    665 filas     0.01 s
-  vino_maridaje                  837 filas     0.01 s
-  auditoria_precio                80 filas     0.00 s
+  departamento                    18 filas     0.70 s
+  localidad                       35 filas     0.71 s
+  cepa                            19 filas     0.71 s
+  maridaje                        12 filas     0.71 s
+  bodega                          12 filas     0.71 s
+  transportista                   15 filas     0.71 s
+  transportista_localidad         54 filas     0.71 s
+  sala_venta                      30 filas     0.72 s
+  empleado                       159 filas     0.73 s
+  finca                           40 filas     0.71 s
+  parcela                        605 filas     0.72 s
+  lote_uva                      2741 filas     1.13 s
+  analisis_calidad              6903 filas     1.03 s
+  vino                           409 filas     0.72 s
+  composicion                    665 filas     0.72 s
+  vino_maridaje                  837 filas     0.72 s
+  auditoria_precio                80 filas     0.71 s
 carga de 3000 clientes
-  fila por fila (un INSERT por fila, una transaccion):     0.52 s        5802 filas/s
-  por lotes con executemany:                               0.17 s       17633 filas/s
-  por lotes con COPY:                                      0.04 s       77609 filas/s
-  COPY es 13.4 veces mas rapido que fila por fila
-  cliente                       3000 filas     0.06 s
-  socio                         2238 filas     0.02 s
-  distribuidor                   539 filas     0.01 s
-  exportador                     223 filas     0.00 s
-  permiso_exportacion            604 filas     0.01 s
-  ingreso                        538 filas     0.01 s
-  renglon_ingreso               1572 filas     0.02 s
-  transferencia                 1228 filas     0.01 s
-  renglon_transferencia         4026 filas     0.06 s
-  comprobante                  15000 filas     0.25 s
-  renglon_comprobante          50353 filas     0.73 s
-  stock_deposito                 409 filas     0.01 s
-  stock_sala                    1532 filas     0.02 s
+  fila por fila (un INSERT por fila, una transaccion):   537.72 s           6 filas/s
+  por lotes con executemany:                               1.69 s        1776 filas/s
+  por lotes con COPY:                                      0.81 s        3715 filas/s
+  COPY es 665.9 veces mas rapido que fila por fila
+  cliente                       3000 filas     0.81 s
+  socio                         2238 filas     0.74 s
+  distribuidor                   539 filas     0.73 s
+  exportador                     223 filas     0.72 s
+  permiso_exportacion            604 filas     0.73 s
+  ingreso                        547 filas     0.72 s
+  renglon_ingreso               1550 filas     0.73 s
+  transferencia                 1229 filas     0.73 s
+  renglon_transferencia         4018 filas     0.76 s
+  comprobante                  15000 filas     0.97 s
+  renglon_comprobante          50686 filas     1.44 s
+  stock_deposito                 409 filas     0.71 s
+  stock_sala                    1537 filas     0.74 s
 
-tiempo de generacion de los datos en python: 0.9 s
-tiempo de carga en la base (con la comparacion de clientes): 2.5 s
+tiempo de generacion de los datos en python: 0.8 s
+tiempo de carga en la base (con la comparacion de clientes): 577.7 s
